@@ -10,7 +10,7 @@ As seções do Template NÃO DEVEM SER OMITIDAS, sendo TODAS RELEVANTES.
  
  (Apague esses comentários)
 
-# NomeDoProjeto
+# Tráfego Inteligente
 
 **Disciplina**: FGA0053 - Sistemas Multiagentes <br>
 **Nro do Grupo (de acordo com a Planilha de Divisão dos Grupos)**: XX<br>
@@ -19,8 +19,12 @@ As seções do Template NÃO DEVEM SER OMITIDAS, sendo TODAS RELEVANTES.
 ## Alunos
 |Matrícula | Aluno |
 | -- | -- |
-| xx/xxxxxx  |  xxxx xxxx xxxxx |
-| xx/xxxxxx  |  xxxx xxxx xxxxx |
+| 21/1043610  |  Arthur Marmo Cathalá |
+| 20/2017540  |  Breno Soares Fernandes |
+| 22/1007680  |  Bruno Ricardo de Menezes |
+| 21/1039439  |  Gabriel Campello Marques |
+| 22/1022613  |  Jonatas Maciel da Silva Alves |
+| 21/1063194  |  Lucas Victor Ferreira de Araújo |
 
 ## Sobre 
 Descreva o seu projeto em linhas gerais. 
@@ -31,11 +35,12 @@ Capriche nessa seção, pois ela é a primeira a ser lida pelos interessados no 
 Adicione 2 ou mais screenshots do projeto em termos de interface e/ou funcionamento.
 
 ## Instalação 
-**Linguagens**: xxxxxx<br>
-**Tecnologias**: xxxxxx<br>
-Descreva os pré-requisitos para rodar o seu projeto e os comandos necessários.
-Insira um manual ou um script para auxiliar ainda mais.
-Gifs animados e outras ilustrações são bem-vindos!
+**Linguagens**: Java 21  
+**Tecnologias**: JADE, Maven
+
+Para instalar no Windows, acessar `manualWindows.md` na pasta tutoriais do repositório do projeto.
+
+Para instalar no Linux, acessar `manualLinux.md` na pasta tutoriais do repositório do projeto.
 
 ## Uso 
 Explique como usar seu projeto.
