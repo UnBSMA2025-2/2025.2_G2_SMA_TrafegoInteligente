@@ -1,0 +1,240 @@
+/* Reset básico e layout principal */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  background-color: #f0f2f5;
+  color: #333;
+  /* Centraliza o app-container */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden; /* Impede a rolagem da página inteira */
+}
+
+.app-container {
+  display: flex;
+  /* Define um tamanho máximo para o app */
+  width: 100%;
+  max-width: 1400px; /* Largura total (350px sidebar + 1000px mapa + 50px margem) */
+  height: 850px; /* Altura fixa para o contêiner */
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Garante que os cantos arredondados sejam aplicados */
+}
+
+/* --- Painel de Controle (Sidebar) --- */
+.sidebar {
+  width: 350px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 1.5rem;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h1 {
+  font-size: 1.5rem;
+  margin-top: 0;
+  color: #1a1a1a;
+  border-bottom: 2px solid #4caf50;
+  padding-bottom: 0.5rem;
+}
+
+.connection-status {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem;
+  border-radius: 5px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.status-connected {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-disconnected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+/* Painel de Comandos */
+.control-panel {
+  margin-bottom: 1.5rem;
+}
+
+.control-panel h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.control-panel button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.control-panel button:hover {
+  background-color: #43a047;
+}
+
+/* Painel de Logs */
+.log-panel {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.log-panel h2 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.log-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  padding: 0.75rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.85rem;
+}
+
+.log-entry {
+  padding: 0.25rem 0;
+  border-bottom: 1px dashed #ddd;
+  word-wrap: break-word;
+}
+
+.log-entry:first-child {
+  font-weight: bold;
+}
+
+/* --- Mapa da Simulação --- */
+.map-container {
+  /* Tira a responsividade e fixa o tamanho do mapa */
+  width: 1000px;
+  height: 800px;
+  flex-shrink: 0; /* Impede que o mapa encolha */
+  position: relative;
+  background-color: #006400; /* Verde escuro (grama) */
+  overflow: hidden; /* Esconde qualquer carro que saia do mapa */
+}
+
+/* Rua (div) */
+.road {
+  position: absolute;
+  background-color: #444; /* Asfalto */
+  border: 2px solid #333;
+}
+
+.road.horizontal {
+  width: 100%;
+  height: 40px;
+  top: 380px; /* Centralizado em 400px (800 / 2) */
+  left: 0;
+  border-top: 2px dashed #aaa; /* Linha tracejada */
+  border-bottom: 2px dashed #aaa;
+}
+
+.road.vertical {
+  width: 40px;
+  height: 100%;
+  left: 480px; /* Centralizado em 500px (1000 / 2) */
+  top: 0;
+  border-left: 2px dashed #aaa; /* Linha tracejada */
+  border-right: 2px dashed #aaa;
+}
+
+/* Semáforo */
+.traffic-light {
+  position: absolute;
+  background-color: #333;
+  padding: 5px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 2px solid #111;
+  z-index: 10;
+}
+
+.light {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: #555;
+  opacity: 0.3;
+}
+
+.light.red.active {
+  background-color: #f00;
+  opacity: 1;
+  box-shadow: 0 0 15px #f00;
+}
+.light.green.active {
+  background-color: #0f0;
+  opacity: 1;
+  box-shadow: 0 0 15px #0f0;
+}
+
+/* Carro */
+.car {
+  position: absolute;
+  width: 30px; /* Largura do SVG */
+  height: 30px; /* Altura do SVG */
+  /* Remove a transição de CSS, a posição será definida pelo JADE */
+  transition: none;
+  z-index: 5;
+  
+  /* Centraliza o SVG do carro */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Estilo do SVG do carro */
+.car svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+}
+
+/* Pardal (Câmera) */
+.pardal {
+  position: absolute;
+  z-index: 10;
+  padding: 5px;
+  background-color: #eee;
+  border-radius: 5px;
+  border: 2px solid #333;
+  transition: box-shadow 0.1s;
+}
+
+.pardal svg {
+  width: 25px;
+  height: 25px;
+}
+
+/* Animação de "Flash" do Pardal */
+.pardal.triggered {
+  background-color: #fff;
+  box-shadow: 0 0 25px 10px #ffffff;
+}
+
