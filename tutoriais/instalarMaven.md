@@ -31,7 +31,7 @@ Para que o Maven funcione corretamente, você precisa configurar algumas variáv
 
 ### 3.2. Atualizar a variável `Path`
 
-1.  Na lista de "Variáveis do sistema", encontre e selecione a variável `Path`.
+1.  Na lista de "Variáveis do usuário", encontre e selecione a variável `Path`.
 2.  Clique em "Editar...".
 3.  Na janela "Editar variável de ambiente":
     *   Clique em "Novo" e adicione `%MAVEN_HOME%\bin`.
