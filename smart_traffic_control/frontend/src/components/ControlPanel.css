@@ -1,0 +1,39 @@
+.control-panel {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  cursor: pointer;
+  color: white;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.btn-add {
+  background-color: #007bff;
+}
+
+.btn-add:hover {
+  background-color: #0056b3;
+}
+
+.btn-remove {
+  background-color: #dc3545;
+}
+
+.btn-remove:hover {
+  background-color: #a71d2a;
+}
+
+.btn-refresh {
+  background-color: #198754;
+}
+
+.btn-refresh:hover {
+  background-color: #0f5132;
+}

@@ -1,0 +1,39 @@
+.log-console {
+  margin-top: 30px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+}
+
+.log-console h3 {
+  margin-top: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.log-container {
+  margin-top: 10px;
+  max-height: 160px;
+  overflow-y: auto;
+  background: #212529;
+  color: #e9ecef;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: "Consolas", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.log-entry {
+  margin-bottom: 4px;
+}
+
+.empty {
+  color: #aaa;
+  font-style: italic;
+}
