@@ -1,69 +1,119 @@
 package com.smarttraffic.agents;
 
+import com.smarttraffic.model.Coordenada;
+import com.smarttraffic.model.Coordenada.Direcao;
+import com.smarttraffic.model.Grid;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import com.smarttraffic.model.Coordenada;
 
-import java.util.Random;
+import java.util.Map;
 
 public class CarAgent extends Agent {
-    private final Random random = new Random();
     private Coordenada coordenada;
+    private static final double PASSO = 1.0;
 
     @Override
     protected void setup() {
         Object[] args = getArguments();
         if (args != null && args.length > 0 && args[0] instanceof Coordenada) {
             coordenada = (Coordenada) args[0];
+        } else {
+            coordenada = new Coordenada(getLocalName(), 0.0, 0.0, Direcao.LESTE);
         }
+
         System.out.println(getLocalName() + " iniciado em " + coordenada);
 
-        addBehaviour(new TickerBehaviour(this, 4000) {
+        addBehaviour(new TickerBehaviour(this, 3000) {
             @Override
             protected void onTick() {
-                if (random.nextDouble() < 0.3) {
-                    informarEntrada();
-                    String estadoSemaforo = consultarSemaforo();
-                    if (estadoSemaforo == null) return;
-                    if (estadoSemaforo.equalsIgnoreCase("GREEN")) {
-                        System.out.println(getLocalName() + " detectou sinal VERDE e está saindo da rua.");
-                        informarSaida();
-                    } else if (estadoSemaforo.equalsIgnoreCase("RED")) {
-                        System.out.println(getLocalName() + " detectou sinal VERMELHO e vai AGUARDAR.");
-                    }
-                }
+                mover();
             }
         });
     }
 
-    private String consultarSemaforo() {
+    private void mover() {
+        boolean haSemaforo = false;
+
+        for (Map.Entry<String, Coordenada> entry : Grid.listarTodas().entrySet()) {
+            String id = entry.getKey();
+            Coordenada c = entry.getValue();
+
+            // verifica apenas objetos que são semáforos
+            if (!id.startsWith("SEMAFORO_")) continue;
+
+            // se o semáforo está na mesma posição do carro (x, y)
+            if (Double.compare(c.getX(), coordenada.getX()) == 0 &&
+                Double.compare(c.getY(), coordenada.getY()) == 0) {
+
+                haSemaforo = true;
+                String estado = consultarSemaforo(id);
+
+                if (estado == null) {
+                    System.out.println(getLocalName() + " não conseguiu obter o estado de " + id + ", vai aguardar.");
+                    return;
+                }
+
+                if ("RED".equalsIgnoreCase(estado)) {
+                    System.out.println(getLocalName() + " está em " + id + " (" + coordenada + 
+                            ") e o sinal está VERMELHO. Aguardando...");
+                    return;
+                }
+
+                if ("GREEN".equalsIgnoreCase(estado)) {
+                    System.out.println(getLocalName() + " está em " + id + " e o sinal está VERDE, vai se mover agora.");
+                    moverParaFrente();
+                    return;
+                }
+            }
+        }
+
+        // se não há semáforo nessa posição, segue normalmente
+        if (!haSemaforo) {
+            moverParaFrente();
+        }
+    }
+
+    private void moverParaFrente() {
+        Direcao direcao = coordenada.getDirecao();
+        double x = coordenada.getX();
+        double y = coordenada.getY();
+
+        switch (direcao) {
+            case NORTE -> y += PASSO;
+            case SUL -> y -= PASSO;
+            case LESTE -> x += PASSO;
+            case OESTE -> x -= PASSO;
+            default -> {
+                System.out.println(getLocalName() + " direção desconhecida: " + direcao);
+                return;
+            }
+        }
+
+        coordenada = new Coordenada(getLocalName(), x, y, direcao);
+        System.out.println(getLocalName() + " se moveu para " + coordenada);
+    }
+
+    private String consultarSemaforo(String semaforoId) {
         ACLMessage request = new ACLMessage(ACLMessage.REQUEST);
-        request.addReceiver(new AID("TrafficLight", AID.ISLOCALNAME));
+        request.addReceiver(new AID(semaforoId, AID.ISLOCALNAME));
         request.setContent("STATUS");
+        request.setConversationId("consulta-semaforo-" + semaforoId);
+        request.setReplyWith("req" + System.currentTimeMillis());
         send(request);
-        MessageTemplate template = MessageTemplate.MatchSender(new AID("TrafficLight", AID.ISLOCALNAME));
-        ACLMessage reply = blockingReceive(template, 2000);
+
+        MessageTemplate mt = MessageTemplate.and(
+                MessageTemplate.MatchConversationId("consulta-semaforo-" + semaforoId),
+                MessageTemplate.MatchInReplyTo(request.getReplyWith())
+        );
+
+        ACLMessage reply = blockingReceive(mt, 1500);
         if (reply != null && reply.getPerformative() == ACLMessage.INFORM) {
             return reply.getContent();
         }
         return null;
-    }
-
-    private void informarEntrada() {
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-        msg.addReceiver(new AID("Pardal", AID.ISLOCALNAME));
-        msg.setContent("Car entering street");
-        send(msg);
-    }
-
-    private void informarSaida() {
-        ACLMessage leaving = new ACLMessage(ACLMessage.INFORM);
-        leaving.addReceiver(new AID("Pardal", AID.ISLOCALNAME));
-        leaving.setContent("Car leaving street");
-        send(leaving);
     }
 
     @Override
