@@ -55,15 +55,15 @@ public final class Grid {
         // =====================================================
         // SAÍDA
         // =====================================================
-        coordenadas.put("SAIDA_0_-1_O", new Coordenada("SAIDA_0_-1_O", 0.0, -1.0, Coordenada.Direcao.OESTE));
-        coordenadas.put("SAIDA_2_-1_S", new Coordenada("SAIDA_2_-1_S", 2.0, -1.0, Coordenada.Direcao.SUL));
+        coordenadas.put("SAIDA_0_-2_O", new Coordenada("SAIDA_0_-2_O", 0.0, -2.0, Coordenada.Direcao.OESTE));
+        coordenadas.put("SAIDA_2_-2_S", new Coordenada("SAIDA_2_-2_S", 2.0, -2.0, Coordenada.Direcao.SUL));
 
         // =====================================================
         // ENTRADA (SPAWN)
         // =====================================================
-        coordenadas.put("SPAWN_0_0_L", new Coordenada("SPAWN_0_0_L", 0.0, 0.0, Coordenada.Direcao.LESTE));
-        coordenadas.put("SPAWN_1_1_S", new Coordenada("SPAWN_1_1_S", 1.0, 1.0, Coordenada.Direcao.SUL));
-        coordenadas.put("SPAWN_2_1_S", new Coordenada("SPAWN_2_1_S", 2.0, 1.0, Coordenada.Direcao.SUL));
+        coordenadas.put("SPAWN_-1_0_L", new Coordenada("SPAWN_-1_0_L", -1.0, 0.0, Coordenada.Direcao.LESTE));
+        coordenadas.put("SPAWN_1_2_S", new Coordenada("SPAWN_1_2_S", 1.0, 2.0, Coordenada.Direcao.SUL));
+        coordenadas.put("SPAWN_2_2_S", new Coordenada("SPAWN_2_2_S", 2.0, 2.0, Coordenada.Direcao.SUL));
     }
 
     /** Retorna uma coordenada pelo nome lógico */

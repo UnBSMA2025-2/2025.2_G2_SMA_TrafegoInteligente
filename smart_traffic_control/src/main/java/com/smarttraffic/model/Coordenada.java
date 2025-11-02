@@ -1,14 +1,12 @@
 package com.smarttraffic.model;
 
 public class Coordenada {
-    private final String id;
-    private final double x;
-    private final double y;
-    private final Direcao direcao;
+    private String id;
+    private double x;
+    private double y;
+    private Direcao direcao;
 
-    public enum Direcao {
-        NORTE, SUL, LESTE, OESTE
-    }
+    public enum Direcao { NORTE, SUL, LESTE, OESTE }
 
     public Coordenada(String id, double x, double y, Direcao direcao) {
         this.id = id;
@@ -17,21 +15,14 @@ public class Coordenada {
         this.direcao = direcao;
     }
 
-    public String getId() {
-        return id;
-    }
+    public String getId() { return id; }
+    public double getX() { return x; }
+    public double getY() { return y; }
+    public Direcao getDirecao() { return direcao; }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public Direcao getDirecao() {
-        return direcao;
-    }
+    public void setDirecao(Direcao direcao) { this.direcao = direcao; }
+    public void setX(double x) { this.x = x; }
+    public void setY(double y) { this.y = y; }
 
     @Override
     public String toString() {
