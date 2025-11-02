@@ -1,37 +1,37 @@
 package com.smarttraffic.agents;
 
 import com.smarttraffic.model.TrafficConfig;
+import com.smarttraffic.model.Coordenada;
 import jade.core.Agent;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 public class TrafficLightAgent extends Agent {
-
     private int redTime = TrafficConfig.BASE_RED_TIME;
     private int greenTime = TrafficConfig.BASE_GREEN_TIME;
     private boolean isGreen = false;
+    private Coordenada coordenada;
 
     @Override
     protected void setup() {
-        System.out.println(getLocalName() + " iniciado.");
+        Object[] args = getArguments();
+        if (args != null && args.length > 0 && args[0] instanceof Coordenada) {
+            coordenada = (Coordenada) args[0];
+        }
+        System.out.println(getLocalName() + " iniciado em " + coordenada);
 
         addBehaviour(new jade.core.behaviours.CyclicBehaviour() {
             @Override
             public void action() {
                 ACLMessage msg = receive();
-                if (msg != null && msg.getPerformative() == ACLMessage.REQUEST) 
-                {
-                    if (msg.getPerformative() == ACLMessage.REQUEST) 
-                    {
-                        if ("STATUS".equalsIgnoreCase(msg.getContent())) {
-                            ACLMessage reply = msg.createReply();
-                            reply.setPerformative(ACLMessage.INFORM);
-                            reply.setContent(isGreen ? "GREEN" : "RED");
-                            send(reply);
-                        } else {
-                            System.out.println("Prioridade solicitada por " + msg.getSender().getLocalName());
-                            redTime = Math.max(2000, redTime - TrafficConfig.PRIORITY_REDUCTION);
-                        }
+                if (msg != null && msg.getPerformative() == ACLMessage.REQUEST) {
+                    if ("STATUS".equalsIgnoreCase(msg.getContent())) {
+                        ACLMessage reply = msg.createReply();
+                        reply.setPerformative(ACLMessage.INFORM);
+                        reply.setContent(isGreen ? "GREEN" : "RED");
+                        send(reply);
+                    } else {
+                        redTime = Math.max(2000, redTime - TrafficConfig.PRIORITY_REDUCTION);
                     }
                 } else {
                     block();
@@ -44,10 +44,8 @@ public class TrafficLightAgent extends Agent {
             protected void onTick() {
                 turnGreen();
                 doWait(greenTime);
-
                 turnRed();
                 doWait(redTime);
-
                 redTime = TrafficConfig.BASE_RED_TIME;
                 greenTime = TrafficConfig.BASE_GREEN_TIME;
             }
