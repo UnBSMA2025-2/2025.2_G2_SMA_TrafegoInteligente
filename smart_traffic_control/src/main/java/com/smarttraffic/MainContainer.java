@@ -1,5 +1,7 @@
 package com.smarttraffic;
 
+import com.smarttraffic.model.Grid;
+import com.smarttraffic.model.Coordenada;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
@@ -22,19 +24,47 @@ public class MainContainer {
             profile.setParameter(Profile.GUI, "true");
             AgentContainer mainContainer = rt.createMainContainer(profile);
 
-            AgentController trafficLight = mainContainer.createNewAgent(
-                    "TrafficLight",
-                    "com.smarttraffic.agents.TrafficLightAgent",
-                    null
-            );
-            trafficLight.start();
+            // =====================================================
+            // CRIA TODOS OS SEMÁFOROS E PARDALs DO GRID
+            // =====================================================
+            System.out.println("Iniciando semáforos e pardais do Grid...");
 
-            AgentController pardal = mainContainer.createNewAgent(
-                    "Pardal",
-                    "com.smarttraffic.agents.PardalAgent",
-                    null
-            );
-            pardal.start();
+            for (Map.Entry<String, Coordenada> entry : Grid.listarTodas().entrySet()) {
+                String nome = entry.getKey();
+
+                try {
+                    // Cria semáforo
+                    if (nome.startsWith("SEMAFORO_")) {
+                        AgentController semaforo = mainContainer.createNewAgent(
+                                nome,
+                                "com.smarttraffic.agents.TrafficLightAgent",
+                                new Object[]{nome}
+                        );
+                        semaforo.start();
+                        System.out.printf("Semáforo criado: %s%n", nome);
+                    }
+
+                    // Cria pardal
+                    if (nome.startsWith("PARDAL_")) {
+                        AgentController pardal = mainContainer.createNewAgent(
+                                nome,
+                                "com.smarttraffic.agents.PardalAgent",
+                                new Object[]{nome}
+                        );
+                        pardal.start();
+                        System.out.printf("Pardal criado: %s%n", nome);
+                    }
+
+                } catch (Exception e) {
+                    System.err.printf("Erro ao criar agente %s: %s%n", nome, e.getMessage());
+                }
+            }
+
+            System.out.println("Todos os semáforos e pardais foram iniciados com base no Grid.");
+
+            // ========================================================
+            // FIM DA CRIAÇÃO DE TODOS OS SEMÁFOROS E PARDALs DO GRID
+            // ========================================================
 
             System.out.println("Sistema iniciado.");
             System.out.println("Comandos: add N | remove X | list | exit");
@@ -97,11 +127,12 @@ public class MainContainer {
                 }
             }
 
+            // Encerra todos os carros e agentes criados
             for (AgentController car : activeCars.values()) {
                 car.kill();
             }
-            pardal.kill();
-            trafficLight.kill();
+
+            System.out.println("Encerrando sistema JADE...");
             System.exit(0);
 
         } catch (StaleProxyException e) {
