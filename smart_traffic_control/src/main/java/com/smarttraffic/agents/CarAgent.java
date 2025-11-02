@@ -29,13 +29,13 @@ public class CarAgent extends Agent {
         addBehaviour(new TickerBehaviour(this, 3000) {
             @Override
             protected void onTick() {
-                mover();
+                executarMovimento();
             }
         });
     }
 
-    private void mover() {
-        boolean haSemaforo = false;
+    private void executarMovimento() {
+        boolean temSemaforo = false;
 
         for (Map.Entry<String, Coordenada> entry : Grid.listarTodas().entrySet()) {
             String id = entry.getKey();
@@ -44,11 +44,12 @@ public class CarAgent extends Agent {
             // verifica apenas objetos que são semáforos
             if (!id.startsWith("SEMAFORO_")) continue;
 
-            // se o semáforo está na mesma posição do carro (x, y)
+            // se o semáforo está na mesma posição e direção do carro
             if (Double.compare(c.getX(), coordenada.getX()) == 0 &&
-                Double.compare(c.getY(), coordenada.getY()) == 0) {
+                Double.compare(c.getY(), coordenada.getY()) == 0 &&
+                c.getDirecao() == coordenada.getDirecao()) {
 
-                haSemaforo = true;
+                temSemaforo = true;
                 String estado = consultarSemaforo(id);
 
                 if (estado == null) {
@@ -57,26 +58,26 @@ public class CarAgent extends Agent {
                 }
 
                 if ("RED".equalsIgnoreCase(estado)) {
-                    System.out.println(getLocalName() + " está em " + id + " (" + coordenada + 
+                    System.out.println(getLocalName() + " está em " + id + " (" + coordenada +
                             ") e o sinal está VERMELHO. Aguardando...");
                     return;
                 }
 
                 if ("GREEN".equalsIgnoreCase(estado)) {
                     System.out.println(getLocalName() + " está em " + id + " e o sinal está VERDE, vai se mover agora.");
-                    moverParaFrente();
+                    mover();
                     return;
                 }
             }
         }
 
-        // se não há semáforo nessa posição, segue normalmente
-        if (!haSemaforo) {
-            moverParaFrente();
+        // se não há semáforo na posição/direção atual, segue normalmente
+        if (!temSemaforo) {
+            mover();
         }
     }
 
-    private void moverParaFrente() {
+    private void mover() {
         Direcao direcao = coordenada.getDirecao();
         double x = coordenada.getX();
         double y = coordenada.getY();
