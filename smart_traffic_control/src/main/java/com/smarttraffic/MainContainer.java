@@ -33,21 +33,25 @@ public class MainContainer {
 
                 try {
                     if (nome.startsWith("SEMAFORO_")) {
+                        Coordenada coord = entry.getValue();
                         AgentController semaforo = mainContainer.createNewAgent(
                                 nome,
                                 "com.smarttraffic.agents.TrafficLightAgent",
-                                new Object[]{nome}
+                                new Object[]{coord}
                         );
                         semaforo.start();
+                        Thread.sleep(100);
                     }
 
                     if (nome.startsWith("PARDAL_")) {
+                        Coordenada coord = entry.getValue();
                         AgentController pardal = mainContainer.createNewAgent(
                                 nome,
                                 "com.smarttraffic.agents.PardalAgent",
-                                new Object[]{nome}
+                                new Object[]{coord}
                         );
                         pardal.start();
+                        Thread.sleep(100);
                     }
 
                 } catch (Exception e) {
@@ -62,7 +66,7 @@ public class MainContainer {
             // INTERAÇÃO PELO CONSOLE
             // =====================================================
             System.out.println("Sistema iniciado.");
-            System.out.println("Comandos: add N | remove X | list | exit");
+            System.out.println("Comandos: add N [spawn] | remove X | list | listspawn | exit");
 
             try (Scanner scanner = new Scanner(System.in)) {
                 String input;
@@ -86,25 +90,53 @@ public class MainContainer {
                         System.out.println("Encerrando sistema...");
                         break;
 
+                    } else if (input.equalsIgnoreCase("listspawn")) {
+                        if (spawns.isEmpty()) {
+                            System.out.println("Nenhum ponto de SPAWN definido no Grid.");
+                        } else {
+                            System.out.println("Spawns disponíveis:");
+                            for (Map.Entry<String, Coordenada> spawn : spawns) {
+                                Coordenada c = spawn.getValue();
+                                System.out.printf("- %s (x = %.2f, y = %.2f)%n", spawn.getKey(), c.getX(), c.getY());
+                            }
+                        }
+
                     } else if (input.startsWith("add")) {
                         String[] parts = input.split(" ");
                         if (parts.length < 2) {
-                            System.out.println("Uso: add <quantidade>");
+                            System.out.println("Uso: add <quantidade> [spawn]");
+                            System.out.println("Exemplo: add 3 SPAWN_0_0");
                             continue;
                         }
 
                         int n = Integer.parseInt(parts[1]);
+                        String spawnSelecionado = parts.length >= 3 ? parts[2] : null;
 
                         if (spawns.isEmpty()) {
                             System.out.println("Nenhum ponto de SPAWN definido no Grid.");
                             continue;
                         }
 
+                        List<Map.Entry<String, Coordenada>> spawnsDisponiveis = spawns;
+
+                        // Se o usuário informou um spawn específico
+                        if (spawnSelecionado != null) {
+                            spawnsDisponiveis = spawns.stream()
+                                    .filter(e -> e.getKey().equalsIgnoreCase(spawnSelecionado))
+                                    .collect(Collectors.toList());
+
+                            if (spawnsDisponiveis.isEmpty()) {
+                                System.out.println("Spawn não encontrado: " + spawnSelecionado);
+                                System.out.println("Use o comando 'listspawn' para ver os disponíveis.");
+                                continue;
+                            }
+                        }
+
                         for (int i = 1; i <= n; i++) {
                             String carName = "Car" + (activeCars.size() + 1);
 
-                            // Escolhe spawn aleatório
-                            var spawnEscolhido = spawns.get(random.nextInt(spawns.size()));
+                            // Escolhe spawn aleatório se nenhum foi informado
+                            var spawnEscolhido = spawnsDisponiveis.get(random.nextInt(spawnsDisponiveis.size()));
                             Coordenada spawnCoord = spawnEscolhido.getValue();
 
                             try {
@@ -121,7 +153,8 @@ public class MainContainer {
                             }
                         }
 
-                        System.out.println(n + " carro(s) adicionados.\n");
+                        System.out.println(n + " carro(s) adicionados no spawn " +
+                                (spawnSelecionado != null ? spawnSelecionado : "aleatório") + ".\n");
 
                     } else if (input.startsWith("remove")) {
                         String[] parts = input.split(" ");
@@ -149,6 +182,7 @@ public class MainContainer {
 
                     } else {
                         System.out.println("Comando inválido.");
+                        System.out.println("Comandos disponíveis: add, remove, list, listspawn, exit");
                     }
                 }
             }
