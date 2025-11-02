@@ -9,9 +9,8 @@ import jade.wrapper.AgentContainer;
 import jade.wrapper.AgentController;
 import jade.wrapper.StaleProxyException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MainContainer {
 
@@ -33,7 +32,6 @@ public class MainContainer {
                 String nome = entry.getKey();
 
                 try {
-                    // Cria semáforo
                     if (nome.startsWith("SEMAFORO_")) {
                         AgentController semaforo = mainContainer.createNewAgent(
                                 nome,
@@ -41,10 +39,8 @@ public class MainContainer {
                                 new Object[]{nome}
                         );
                         semaforo.start();
-                        System.out.printf("Semáforo criado: %s%n", nome);
                     }
 
-                    // Cria pardal
                     if (nome.startsWith("PARDAL_")) {
                         AgentController pardal = mainContainer.createNewAgent(
                                 nome,
@@ -52,7 +48,6 @@ public class MainContainer {
                                 new Object[]{nome}
                         );
                         pardal.start();
-                        System.out.printf("Pardal criado: %s%n", nome);
                     }
 
                 } catch (Exception e) {
@@ -61,16 +56,22 @@ public class MainContainer {
             }
 
             System.out.println("Todos os semáforos e pardais foram iniciados com base no Grid.");
+            System.out.println("=====================================================\n");
 
-            // ========================================================
-            // FIM DA CRIAÇÃO DE TODOS OS SEMÁFOROS E PARDALs DO GRID
-            // ========================================================
-
+            // =====================================================
+            // INTERAÇÃO PELO CONSOLE
+            // =====================================================
             System.out.println("Sistema iniciado.");
             System.out.println("Comandos: add N | remove X | list | exit");
 
             try (Scanner scanner = new Scanner(System.in)) {
                 String input;
+                Random random = new Random();
+
+                // Filtra os pontos de SPAWN do Grid
+                List<Map.Entry<String, Coordenada>> spawns = Grid.listarTodas().entrySet().stream()
+                        .filter(e -> e.getKey().startsWith("SPAWN_"))
+                        .collect(Collectors.toList());
 
                 while (true) {
                     System.out.print("> ");
@@ -78,56 +79,83 @@ public class MainContainer {
                         System.out.println("Entrada encerrada.");
                         break;
                     }
+
                     input = scanner.nextLine().trim();
 
                     if (input.equalsIgnoreCase("exit")) {
                         System.out.println("Encerrando sistema...");
                         break;
+
                     } else if (input.startsWith("add")) {
                         String[] parts = input.split(" ");
                         if (parts.length < 2) {
                             System.out.println("Uso: add <quantidade>");
                             continue;
                         }
+
                         int n = Integer.parseInt(parts[1]);
+
+                        if (spawns.isEmpty()) {
+                            System.out.println("Nenhum ponto de SPAWN definido no Grid.");
+                            continue;
+                        }
+
                         for (int i = 1; i <= n; i++) {
                             String carName = "Car" + (activeCars.size() + 1);
-                            AgentController car = mainContainer.createNewAgent(
-                                    carName,
-                                    "com.smarttraffic.agents.CarAgent",
-                                    new Object[]{carName}
-                            );
-                            car.start();
-                            activeCars.put(carName, car);
+
+                            // Escolhe spawn aleatório
+                            var spawnEscolhido = spawns.get(random.nextInt(spawns.size()));
+                            Coordenada spawnCoord = spawnEscolhido.getValue();
+
+                            try {
+                                AgentController car = mainContainer.createNewAgent(
+                                        carName,
+                                        "com.smarttraffic.agents.CarAgent",
+                                        new Object[]{spawnCoord}
+                                );
+                                car.start();
+                                activeCars.put(carName, car);
+
+                            } catch (Exception e) {
+                                System.err.printf("Erro ao criar carro %s: %s%n", carName, e.getMessage());
+                            }
                         }
-                        System.out.println(n + " carros adicionados.");
+
+                        System.out.println(n + " carro(s) adicionados.\n");
+
                     } else if (input.startsWith("remove")) {
                         String[] parts = input.split(" ");
                         if (parts.length < 2) {
                             System.out.println("Uso: remove <nome_carro>");
                             continue;
                         }
+
                         String carName = parts[1];
                         AgentController car = activeCars.remove(carName);
+
                         if (car != null) {
                             car.kill();
                             System.out.println(carName + " removido.");
                         } else {
                             System.out.println("Carro não encontrado: " + carName);
                         }
+
                     } else if (input.equals("list")) {
                         if (activeCars.isEmpty()) {
                             System.out.println("Nenhum carro ativo.");
                         } else {
                             System.out.println("Carros ativos: " + activeCars.keySet());
                         }
+
                     } else {
                         System.out.println("Comando inválido.");
                     }
                 }
             }
 
-            // Encerra todos os carros e agentes criados
+            // =====================================================
+            // FINALIZAÇÃO DOS AGENTES
+            // =====================================================
             for (AgentController car : activeCars.values()) {
                 car.kill();
             }
