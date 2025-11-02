@@ -159,18 +159,35 @@ public class MainContainer {
                     } else if (input.startsWith("remove")) {
                         String[] parts = input.split(" ");
                         if (parts.length < 2) {
-                            System.out.println("Uso: remove <nome_carro>");
+                            System.out.println("Uso: remove <nome_carro> ou remove <numero>");
+                            System.out.println("Exemplo: remove Car1, para remover o carro Car1, ou remove 2, para remover os 2 primeiros carros.");
                             continue;
                         }
 
                         String carName = parts[1];
-                        AgentController car = activeCars.remove(carName);
+                        try {
+                            int num = Integer.parseInt(carName);
+                            List<String> toRemove = new ArrayList<>(activeCars.keySet()).subList(0, Math.min(num, activeCars.size()));
+                            for (String name : toRemove) {
+                                AgentController car = activeCars.remove(name);
+                                if (car != null) {
+                                    car.kill();
+                                }
+                            }
+                            if (toRemove.isEmpty()) {
+                                System.out.println("Nenhum carro para remover.");
+                            } else {
+                            System.out.println(toRemove.size() + " carro(s) removido(s).");
+                            }
 
-                        if (car != null) {
-                            car.kill();
-                            System.out.println(carName + " removido.");
-                        } else {
-                            System.out.println("Carro não encontrado: " + carName);
+                        } catch (NumberFormatException e) {
+                            AgentController car = activeCars.remove(carName);
+                            if (car != null) {
+                                car.kill();
+                                System.out.println("Carro " + carName + " removido.");
+                            } else {
+                                System.out.println("Carro não encontrado: " + carName);
+                            }
                         }
 
                     } else if (input.equals("list")) {
