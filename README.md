@@ -44,13 +44,21 @@ Para instalar no Linux, acessar `manualLinux.md` na pasta tutoriais do repositó
 
 ## Uso 
 Checar [Tutoriais e manuais](./tutoriais/) para instalação e para iniciar o Sistema
+
 (uso pelo console) Após inicialização do console, utilizar comandos:
+
 add n para adicionar n carros à simulação em pontos de spawn aleatórios
+
 add n pontoSpawn para adicionar n carros ao ponto de spawn pontoSpawn
+
 remove nomeCarro para remover o carro de nome nomeCarro
+
 remove n para remove os n primeiros carros adicionados à simulação
+
 list para listar carros ativos
+
 listspawn para listar pontos de spawn
+
 exit para sair da aplicação
 
 Procure ilustrar em passos, com apoio de telas do software, seja com base na interface gráfica, seja com base no terminal.
