@@ -22,6 +22,9 @@ public class CarAgent extends Agent {
     private boolean primeiroMovimento = true;
     private final Random random = new Random();
 
+    // mapa das posicoes de todos os carros
+    public static final Map<String, Coordenada> POSICOES_CARROS = new HashMap<>();
+
     // mapa pras regras de movimento
     private static final Map<String, Map<Direcao, List<Direcao>>> REGRAS = new HashMap<>();
     private static final Map<String, List<Direcao>> REGRAS_SPAWN = new HashMap<>();
@@ -86,6 +89,22 @@ public class CarAgent extends Agent {
         REGRAS_SPAWN.put("1_2", Arrays.asList(Direcao.SUL)); // pode ir sul
         REGRAS_SPAWN.put("2_2", Arrays.asList(Direcao.SUL)); // pode ir sul
 
+        // regras pra quem teve que esperar no spawn
+        // (-1,0)
+        Map<Direcao, List<Direcao>> spawnn10 = new HashMap<>();
+        spawnn10.put(Direcao.LESTE, Arrays.asList(Direcao.LESTE)); // pode ir leste
+        REGRAS.put("-1_0", spawnn10);
+
+        // (1,2)
+        Map<Direcao, List<Direcao>> spawn12 = new HashMap<>();
+        spawn12.put(Direcao.SUL, Arrays.asList(Direcao.SUL)); // pode ir sul
+        REGRAS.put("1_2", spawn12);
+
+        // (2,2)
+        Map<Direcao, List<Direcao>> spawn22 = new HashMap<>();
+        spawn22.put(Direcao.SUL, Arrays.asList(Direcao.SUL)); // pode ir sul
+        REGRAS.put("2_2", spawn22);
+
     }
 
     @Override
@@ -97,6 +116,7 @@ public class CarAgent extends Agent {
             coordenada = new Coordenada(getLocalName(), 0.0, 0.0, Direcao.LESTE);
         }
         primeiroMovimento = true;
+        POSICOES_CARROS.put(getLocalName(), coordenada);
 
         System.out.println(getLocalName() + " iniciado em " + coordenada);
 
@@ -160,7 +180,6 @@ public class CarAgent extends Agent {
             return;
         }
         Direcao nextDir = possiveisDirecoes.get(random.nextInt(possiveisDirecoes.size()));
-        primeiroMovimento = false;
 
         double x = coordenada.getX();
         double y = coordenada.getY();
@@ -174,7 +193,40 @@ public class CarAgent extends Agent {
             case OESTE -> dirPraX = x - (Math.floor(x) - 1);
         }
 
-        double minDir = Math.min(PASSO, Math.min(dirPraX, dirPraY));
+        double minDir = Math.min(PASSO, Math.min(dirPraX, dirPraY)); // garante q passos q n dividem 1 n ultrapasse a intersecao
+        boolean podeIr = true;
+        double intencaoX = x;
+        double intencaoY = y;
+
+        switch (nextDir) {
+            case NORTE -> intencaoY += minDir;
+            case SUL -> intencaoY -= minDir;
+            case LESTE -> intencaoX += minDir;
+            case OESTE -> intencaoX -= minDir;
+        }
+        for (Coordenada outrosCarros : POSICOES_CARROS.values()) {
+            if(outrosCarros.getDirecao() == nextDir) {
+                boolean carroAFrente = false;
+                switch (nextDir) {
+                    case NORTE -> carroAFrente = outrosCarros.getY() > y;
+                    case SUL -> carroAFrente = outrosCarros.getY() < y;
+                    case LESTE -> carroAFrente = outrosCarros.getX() > x;
+                    case OESTE -> carroAFrente = outrosCarros.getX() < x;
+                }
+                if (carroAFrente) {
+                    double dist = Math.sqrt((outrosCarros.getX() - intencaoX) * (outrosCarros.getX() - intencaoX) +
+                                            (outrosCarros.getY() - intencaoY) * (outrosCarros.getY() - intencaoY));
+                    if (dist < 0.1) {
+                        podeIr = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!podeIr) {
+            minDir = 0;
+            System.out.println(getLocalName() + " em " + coordenada + " não pode se mover para evitar colisão. Ficando Desacelerado.");
+        }
 
         switch (nextDir) {
             case NORTE -> y += minDir;
@@ -191,6 +243,10 @@ public class CarAgent extends Agent {
         }
 
         coordenada = new Coordenada(getLocalName(), x, y, nextDir);
+        POSICOES_CARROS.put(getLocalName(), coordenada);
+        if (x == Math.floor(x) && y == Math.floor(y) && primeiroMovimento) {
+            primeiroMovimento = false;
+        }
         System.out.println(getLocalName() + " moveu para " + coordenada);
     }
 
@@ -229,6 +285,7 @@ public class CarAgent extends Agent {
 
     @Override
     protected void takeDown() {
+        POSICOES_CARROS.remove(getLocalName());
         System.out.println(getLocalName() + " finalizado.");
     }
 }
