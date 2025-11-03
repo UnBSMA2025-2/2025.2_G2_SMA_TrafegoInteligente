@@ -181,20 +181,26 @@ public class CarAgent extends Agent {
         }
         Direcao nextDir = possiveisDirecoes.get(random.nextInt(possiveisDirecoes.size()));
 
+        // Condicoes de saida
+        if ((coordenada.getX() == 2 && coordenada.getY() == -1 && nextDir == Direcao.SUL) || (coordenada.getX() == 0 && coordenada.getY() == -1 && nextDir == Direcao.OESTE)) {
+            System.out.println(getLocalName() + " chegou em uma saída. Deletando agente.");
+            doDelete();
+            return;
+        }
+
         double x = coordenada.getX();
         double y = coordenada.getY();
         double dirPraX = Double.MAX_VALUE;
         double dirPraY = Double.MAX_VALUE;
 
         switch(nextDir) {
-            case NORTE -> dirPraY = (Math.floor(y) + 1) - y;
-            case SUL -> dirPraY = y - (Math.floor(y) - 1);
-            case LESTE -> dirPraX = (Math.floor(x) + 1) - x;
-            case OESTE -> dirPraX = x - (Math.floor(x) - 1);
+            case NORTE -> dirPraY = (y == Math.ceil(y)) ? 1.0 : Math.ceil(y) - y;
+            case SUL -> dirPraY = (y == Math.floor(y)) ? 1.0 : y - Math.floor(y);
+            case LESTE -> dirPraX = (x == Math.ceil(x)) ? 1.0 : Math.ceil(x) - x;
+            case OESTE -> dirPraX = (x == Math.floor(x)) ? 1.0 : x - Math.floor(x);
         }
 
-        double minDir = Math.min(PASSO, Math.min(dirPraX, dirPraY)); // garante q passos q n dividem 1 n ultrapasse a intersecao
-        boolean podeIr = true;
+        double minDir = Math.min(PASSO, Math.min(dirPraX, dirPraY));
         double intencaoX = x;
         double intencaoY = y;
 
@@ -204,6 +210,7 @@ public class CarAgent extends Agent {
             case LESTE -> intencaoX += minDir;
             case OESTE -> intencaoX -= minDir;
         }
+        double movimentoMax = PASSO;
         for (Coordenada outrosCarros : POSICOES_CARROS.values()) {
             if(outrosCarros.getDirecao() == nextDir) {
                 boolean carroAFrente = false;
@@ -214,18 +221,27 @@ public class CarAgent extends Agent {
                     case OESTE -> carroAFrente = outrosCarros.getX() < x;
                 }
                 if (carroAFrente) {
-                    double dist = Math.sqrt((outrosCarros.getX() - intencaoX) * (outrosCarros.getX() - intencaoX) +
-                                            (outrosCarros.getY() - intencaoY) * (outrosCarros.getY() - intencaoY));
-                    if (dist < 0.1) {
-                        podeIr = false;
-                        break;
+                    double distAFrente = 0;
+                    switch (nextDir) {
+                        case NORTE -> distAFrente = outrosCarros.getY() - y;
+                        case SUL -> distAFrente = y - outrosCarros.getY();
+                        case LESTE -> distAFrente = outrosCarros.getX() - x;
+                        case OESTE -> distAFrente = x - outrosCarros.getX();
                     }
+                    double movimentoSeguro = distAFrente - 0.1;
+                    movimentoMax = Math.min(movimentoMax, movimentoSeguro);
+                    if (movimentoMax < PASSO && primeiroMovimento)
+                        movimentoMax = 0;
                 }
             }
         }
-        if (!podeIr) {
-            minDir = 0;
-            System.out.println(getLocalName() + " em " + coordenada + " não pode se mover para evitar colisão. Ficando Desacelerado.");
+        minDir = Math.min(minDir, Math.max(0, movimentoMax));
+        minDir = Math.min(minDir, Math.min(dirPraX, dirPraY));
+        System.out.println(getLocalName() + " em " + coordenada + " tentando mover " + PASSO +
+                " para " + nextDir + ", pode mover: " + minDir);
+
+        if (movimentoMax < PASSO) {
+            System.out.println(getLocalName() + " em " + coordenada + " reduziu velocidade para evitar colisão.");
         }
 
         switch (nextDir) {
@@ -233,13 +249,6 @@ public class CarAgent extends Agent {
             case SUL -> y -= minDir;
             case LESTE -> x += minDir;
             case OESTE -> x -= minDir;
-        }
-
-        // Condicoes de saida
-        if ((x == 2 && y == -1 && nextDir == Direcao.SUL) || (x == 0 && y == -1 && nextDir == Direcao.OESTE)) {
-            System.out.println(getLocalName() + " chegou em uma saída. Deletando agente.");
-            doDelete();
-            return;
         }
 
         coordenada = new Coordenada(getLocalName(), x, y, nextDir);
@@ -255,7 +264,7 @@ public class CarAgent extends Agent {
         if (spawnado) {
             return REGRAS_SPAWN.getOrDefault(key, new ArrayList<>());
         } else {
-            if((dir == Direcao.LESTE || dir == Direcao.OESTE) ? x == Math.floor(x) : y == Math.floor(y)) {
+            if(x == Math.floor(x) && y == Math.floor(y)) {
             Map<Direcao, List<Direcao>> regrasLocal = REGRAS.get(key);
             return regrasLocal != null ? regrasLocal.getOrDefault(dir, new ArrayList<>()) : new ArrayList<>();
             }
