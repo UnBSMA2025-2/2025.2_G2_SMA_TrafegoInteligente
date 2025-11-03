@@ -34,8 +34,8 @@ public class CarAgent extends Agent {
         // (0,0) - meio esquerdo
         Map<Direcao, List<Direcao>> regra00 = new HashMap<>();
         regra00.put(Direcao.NORTE, Arrays.asList(Direcao.NORTE, Direcao.LESTE)); // direcao norte pode ir norte ou leste
-        regra00.put(Direcao.LESTE, Arrays.asList(Direcao.NORTE)); // direcao leste só pode ir norte
-        regra00.put(Direcao.OESTE, Arrays.asList(Direcao.NORTE, Direcao.LESTE)); // direcao oeste só pode ir norte ou leste (vindo do spawn)
+        regra00.put(Direcao.OESTE, Arrays.asList(Direcao.NORTE)); // direcao leste só pode ir norte
+        regra00.put(Direcao.LESTE, Arrays.asList(Direcao.NORTE, Direcao.LESTE)); // direcao oeste só pode ir norte ou leste (vindo do spawn)
         REGRAS.put("0_0", regra00);
 
         // (0,1) - canto superior esquerdo
