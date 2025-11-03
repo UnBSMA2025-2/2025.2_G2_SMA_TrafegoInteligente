@@ -21,9 +21,9 @@ public final class Grid {
         coordenadas.put("SEMAFORO_0_0_L", new Coordenada("SEMAFORO_0_0_L", 0.0, 0.0, Coordenada.Direcao.LESTE));
         coordenadas.put("SEMAFORO_0_0_O", new Coordenada("SEMAFORO_0_0_O", 0.0, 0.0, Coordenada.Direcao.OESTE));
 
-        coordenadas.put("PARDAL_0_0_N", new Coordenada("PARDAL_0_0_N", 0.0, 0.0, Coordenada.Direcao.NORTE));
-        coordenadas.put("PARDAL_0_0_L", new Coordenada("PARDAL_0_0_L", 0.0, 0.0, Coordenada.Direcao.LESTE));
-        coordenadas.put("PARDAL_0_0_O", new Coordenada("PARDAL_0_0_O", 0.0, 0.0, Coordenada.Direcao.OESTE));
+        coordenadas.put("PARDAL_0_0_N", new Coordenada("PARDAL_0_0_N", 0.0, -0.9, Coordenada.Direcao.NORTE));
+        coordenadas.put("PARDAL_0_0_L", new Coordenada("PARDAL_0_0_L", -0.9, 0.0, Coordenada.Direcao.LESTE));
+        coordenadas.put("PARDAL_0_0_O", new Coordenada("PARDAL_0_0_O", 0.9, 0.0, Coordenada.Direcao.OESTE));
 
         // =====================================================
         // CRUZAMENTO (1, 0)
@@ -32,9 +32,9 @@ public final class Grid {
         coordenadas.put("SEMAFORO_1_0_L", new Coordenada("SEMAFORO_1_0_L", 1.0, 0.0, Coordenada.Direcao.LESTE));
         coordenadas.put("SEMAFORO_1_0_O", new Coordenada("SEMAFORO_1_0_O", 1.0, 0.0, Coordenada.Direcao.OESTE));
 
-        coordenadas.put("PARDAL_1_0_S", new Coordenada("PARDAL_1_0_S", 1.0, 0.0, Coordenada.Direcao.SUL));
-        coordenadas.put("PARDAL_1_0_L", new Coordenada("PARDAL_1_0_L", 1.0, 0.0, Coordenada.Direcao.LESTE));
-        coordenadas.put("PARDAL_1_0_O", new Coordenada("PARDAL_1_0_O", 1.0, 0.0, Coordenada.Direcao.OESTE));
+        coordenadas.put("PARDAL_1_0_S", new Coordenada("PARDAL_1_0_S", 1.0, 0.9, Coordenada.Direcao.SUL));
+        coordenadas.put("PARDAL_1_0_L", new Coordenada("PARDAL_1_0_L", 0.1, 0.0, Coordenada.Direcao.LESTE));
+        coordenadas.put("PARDAL_1_0_O", new Coordenada("PARDAL_1_0_O", 1.9, 0.0, Coordenada.Direcao.OESTE));
 
         // =====================================================
         // CRUZAMENTO (2, 0)
@@ -42,8 +42,8 @@ public final class Grid {
         coordenadas.put("SEMAFORO_2_0_S", new Coordenada("SEMAFORO_2_0_S", 2.0, 0.0, Coordenada.Direcao.SUL));
         coordenadas.put("SEMAFORO_2_0_L", new Coordenada("SEMAFORO_2_0_L", 2.0, 0.0, Coordenada.Direcao.LESTE));
 
-        coordenadas.put("PARDAL_2_0_S", new Coordenada("PARDAL_2_0_S", 2.0, 0.0, Coordenada.Direcao.SUL));
-        coordenadas.put("PARDAL_2_0_L", new Coordenada("PARDAL_2_0_L", 2.0, 0.0, Coordenada.Direcao.LESTE));
+        coordenadas.put("PARDAL_2_0_S", new Coordenada("PARDAL_2_0_S", 2.0, 0.9, Coordenada.Direcao.SUL));
+        coordenadas.put("PARDAL_2_0_L", new Coordenada("PARDAL_2_0_L", 1.1, 0.0, Coordenada.Direcao.LESTE));
 
         // =====================================================
         // PLACAS DE PARE

@@ -20,6 +20,7 @@ public class CarAgent extends Agent {
     private Coordenada coordenada;
     private static final double PASSO = 0.1;
     private boolean primeiroMovimento = true;
+    private String pardalAtual = null;
     private final Random random = new Random();
 
     // mapa das posicoes de todos os carros
@@ -179,6 +180,56 @@ public class CarAgent extends Agent {
         return REGRAS.containsKey(key) || REGRAS_SPAWN.containsKey(key);
     }
 
+    /**
+     * Verifica se o carro está sobre algum PARDAL do Grid com a mesma direção.
+     * Se sim, envia mensagem de entrada (ou manutenção).
+     * Se saiu de um pardal anterior, envia mensagem de saída.
+     */
+    private void verificarPardal() {
+        String novoPardal = null;
+
+        // percorre todos os pardais do grid
+        for (Map.Entry<String, Coordenada> entry : Grid.listarTodas().entrySet()) {
+            String id = entry.getKey();
+            Coordenada c = entry.getValue();
+
+            // considera apenas pardais
+            if (!id.startsWith("PARDAL_")) continue;
+
+            // deve ter a mesma direção
+            if (c.getDirecao() != coordenada.getDirecao()) continue;
+
+            // deve estar na mesma posição exata
+            if (Double.compare(c.getX(), coordenada.getX()) == 0 &&
+                Double.compare(c.getY(), coordenada.getY()) == 0) {
+                novoPardal = id;
+                break;
+            }
+        }
+
+        // se encontrou um novo pardal
+        if (novoPardal != null && !novoPardal.equals(pardalAtual)) {
+            // se já estava em outro, sai dele
+            if (pardalAtual != null) {
+                ACLMessage sair = new ACLMessage(ACLMessage.INFORM);
+                sair.addReceiver(new AID(pardalAtual, AID.ISLOCALNAME));
+                sair.setContent("Car leaving street");
+                send(sair);
+                System.out.println(getLocalName() + " saiu do pardal " + pardalAtual);
+            }
+
+            // entra no novo pardal
+            ACLMessage entrar = new ACLMessage(ACLMessage.INFORM);
+            entrar.addReceiver(new AID(novoPardal, AID.ISLOCALNAME));
+            entrar.setContent("Car entering street");
+            send(entrar);
+            System.out.println(getLocalName() + " entrou no pardal " + novoPardal);
+
+            pardalAtual = novoPardal;
+        }
+    }
+
+
     private void mover() {
         // Verifica se o carro chegou a um ponto interno do mapa (coordenada mapeada nas REGRAS)
         boolean chegouEmCoordenadaInterna = chegouEmCoordenadaInterna(coordenada.getX(), coordenada.getY());
@@ -211,7 +262,21 @@ public class CarAgent extends Agent {
         // Condições de saída
         if ((coordenada.getX() == 2 && coordenada.getY() == -1 && nextDir == Direcao.SUL) ||
             (coordenada.getX() == 0 && coordenada.getY() == -1 && nextDir == Direcao.OESTE)) {
-            System.out.println(getLocalName() + " chegou em uma saída. Deletando agente.");
+
+            System.out.println(getLocalName() + " chegou em uma saída.");
+
+            // Se estiver atualmente em algum pardal, avisa que saiu
+            if (pardalAtual != null) {
+                ACLMessage sair = new ACLMessage(ACLMessage.INFORM);
+                sair.addReceiver(new AID(pardalAtual, AID.ISLOCALNAME));
+                sair.setContent("Car leaving street");
+                send(sair);
+                System.out.println(getLocalName() + " informou SAÍDA do pardal " + pardalAtual);
+                pardalAtual = null;
+            }
+
+            // Agora o carro é finalizado
+            System.out.println(getLocalName() + " foi removido do mapa (saída).");
             doDelete();
             return;
         }
@@ -275,6 +340,7 @@ public class CarAgent extends Agent {
         coordenada = new Coordenada(getLocalName(), x, y, nextDir);
         POSICOES_CARROS.put(getLocalName(), coordenada);
         System.out.println(getLocalName() + " moveu para " + coordenada);
+        verificarPardal();
     }
 
     private List<Direcao> direcoesPossiveis(double x, double y, Direcao dir, boolean spawnado) {
