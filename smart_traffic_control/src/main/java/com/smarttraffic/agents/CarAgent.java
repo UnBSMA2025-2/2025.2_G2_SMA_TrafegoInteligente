@@ -237,8 +237,8 @@ public class CarAgent extends Agent {
         }
         minDir = Math.min(minDir, Math.max(0, movimentoMax));
         minDir = Math.min(minDir, Math.min(dirPraX, dirPraY));
-        System.out.println(getLocalName() + " em " + coordenada + " tentando mover " + PASSO +
-                " para " + nextDir + ", pode mover: " + minDir);
+        //System.out.println(getLocalName() + " em " + coordenada + " tentando mover " + PASSO + //debug print
+        //        " para " + nextDir + ", pode mover: " + minDir);
 
         if (movimentoMax < PASSO) {
             System.out.println(getLocalName() + " em " + coordenada + " reduziu velocidade para evitar colisão.");
