@@ -6,7 +6,7 @@ public class Coordenada {
     private double y;
     private Direcao direcao;
 
-    public enum Direcao { NORTE, SUL, LESTE, OESTE }
+    public enum Direcao { NORTE, SUL, LESTE, OESTE, COORDENADOR }
 
     public Coordenada(String id, double x, double y, Direcao direcao) {
         this.id = id;

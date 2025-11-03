@@ -25,6 +25,8 @@ public final class Grid {
         coordenadas.put("PARDAL_0_0_L", new Coordenada("PARDAL_0_0_L", -0.9, 0.0, Coordenada.Direcao.LESTE));
         coordenadas.put("PARDAL_0_0_O", new Coordenada("PARDAL_0_0_O", 0.9, 0.0, Coordenada.Direcao.OESTE));
 
+        coordenadas.put("COORDENADOR_0_0_C", new Coordenada("COORDENADOR_0_0_C", 0.0, 0.0, Coordenada.Direcao.COORDENADOR));
+
         // =====================================================
         // CRUZAMENTO (1, 0)
         // =====================================================
@@ -36,6 +38,8 @@ public final class Grid {
         coordenadas.put("PARDAL_1_0_L", new Coordenada("PARDAL_1_0_L", 0.1, 0.0, Coordenada.Direcao.LESTE));
         coordenadas.put("PARDAL_1_0_O", new Coordenada("PARDAL_1_0_O", 1.9, 0.0, Coordenada.Direcao.OESTE));
 
+        coordenadas.put("COORDENADOR_1_0_C", new Coordenada("COORDENADOR_1_0_C", 1.0, 0.0, Coordenada.Direcao.COORDENADOR));
+
         // =====================================================
         // CRUZAMENTO (2, 0)
         // =====================================================
@@ -44,6 +48,8 @@ public final class Grid {
 
         coordenadas.put("PARDAL_2_0_S", new Coordenada("PARDAL_2_0_S", 2.0, 0.9, Coordenada.Direcao.SUL));
         coordenadas.put("PARDAL_2_0_L", new Coordenada("PARDAL_2_0_L", 1.1, 0.0, Coordenada.Direcao.LESTE));
+
+        coordenadas.put("COORDENADOR_2_0_C", new Coordenada("COORDENADOR_2_0_C", 2.0, 0.0, Coordenada.Direcao.COORDENADOR));
 
         // =====================================================
         // PLACAS DE PARE
