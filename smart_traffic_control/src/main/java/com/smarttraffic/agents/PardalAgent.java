@@ -21,6 +21,7 @@ public class PardalAgent extends Agent {
             public void action() {
                 ACLMessage msg = receive();
                 if (msg != null && msg.getPerformative() == ACLMessage.INFORM) {
+                    System.out.println("Recebido aviso de " + msg.getSender().getLocalName());
                     ACLMessage forward = new ACLMessage(ACLMessage.REQUEST);
                     forward.addReceiver(new AID("TrafficLight", AID.ISLOCALNAME));
                     forward.setContent("Request Priority");

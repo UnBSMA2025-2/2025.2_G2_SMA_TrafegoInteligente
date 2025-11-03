@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class CarAgent extends Agent {
     private Coordenada coordenada;
-    private static final double PASSO = 1.0;
+    private static final double PASSO = 0.1;
     private boolean primeiroMovimento = true;
     private final Random random = new Random();
 
@@ -34,8 +34,8 @@ public class CarAgent extends Agent {
         // (0,0) - meio esquerdo
         Map<Direcao, List<Direcao>> regra00 = new HashMap<>();
         regra00.put(Direcao.NORTE, Arrays.asList(Direcao.NORTE, Direcao.LESTE)); // direcao norte pode ir norte ou leste
-        regra00.put(Direcao.OESTE, Arrays.asList(Direcao.NORTE)); // direcao leste só pode ir norte
-        regra00.put(Direcao.LESTE, Arrays.asList(Direcao.NORTE, Direcao.LESTE)); // direcao oeste só pode ir norte ou leste (vindo do spawn)
+        regra00.put(Direcao.OESTE, Arrays.asList(Direcao.NORTE)); // direcao oeste só pode ir norte
+        regra00.put(Direcao.LESTE, Arrays.asList(Direcao.NORTE, Direcao.LESTE)); // direcao leste só pode ir norte ou leste (vindo do spawn)
         REGRAS.put("0_0", regra00);
 
         // (0,1) - canto superior esquerdo
@@ -171,29 +171,65 @@ public class CarAgent extends Agent {
         }
     }
 
+    /** 
+     * Verifica se as coordenadas (x, y) correspondem a um ponto conhecido do mapa interno (REGRAS ou REGRAS_SPAWN).
+     */
+    private boolean chegouEmCoordenadaInterna(double x, double y) {
+        String key = (int) x + "_" + (int) y;
+        return REGRAS.containsKey(key) || REGRAS_SPAWN.containsKey(key);
+    }
+
     private void mover() {
+        // Verifica se o carro chegou a um ponto interno do mapa (coordenada mapeada nas REGRAS)
+        boolean chegouEmCoordenadaInterna = chegouEmCoordenadaInterna(coordenada.getX(), coordenada.getY());
+
+        // Enquanto não chegou a um ponto mapeado, ele segue em frente na mesma direção
+        if (!chegouEmCoordenadaInterna) {
+            System.out.println(getLocalName() + " ainda fora das coordenadas mapeadas, seguindo reto até entrar no mapa...");
+            moverNaDirecao(coordenada.getDirecao());
+            return;
+        }
+
+        // Assim que entra em uma coordenada mapeada pela primeira vez, libera as regras normais
+        if (primeiroMovimento) {
+            primeiroMovimento = false;
+            System.out.println(getLocalName() + " entrou oficialmente no mapa interno em " + coordenada);
+        }
+
+        // Segue a lógica normal de movimento com base nas regras
         List<Direcao> possiveisDirecoes = direcoesPossiveis(coordenada.getX(), coordenada.getY(),
                 coordenada.getDirecao(), primeiroMovimento);
+
         if (possiveisDirecoes.isEmpty()) {
             System.out.println(getLocalName() + " em " + coordenada + " não tem pra onde ir. Deletando agente.");
             doDelete();
             return;
         }
+
         Direcao nextDir = possiveisDirecoes.get(random.nextInt(possiveisDirecoes.size()));
 
-        // Condicoes de saida
-        if ((coordenada.getX() == 2 && coordenada.getY() == -1 && nextDir == Direcao.SUL) || (coordenada.getX() == 0 && coordenada.getY() == -1 && nextDir == Direcao.OESTE)) {
+        // Condições de saída
+        if ((coordenada.getX() == 2 && coordenada.getY() == -1 && nextDir == Direcao.SUL) ||
+            (coordenada.getX() == 0 && coordenada.getY() == -1 && nextDir == Direcao.OESTE)) {
             System.out.println(getLocalName() + " chegou em uma saída. Deletando agente.");
             doDelete();
             return;
         }
 
+        moverNaDirecao(nextDir);
+    }
+
+    /**
+     * Move o carro uma unidade mínima (PASSO) na direção indicada, considerando colisões.
+     */
+    private void moverNaDirecao(Direcao nextDir) {
         double x = coordenada.getX();
         double y = coordenada.getY();
+
         double dirPraX = Double.MAX_VALUE;
         double dirPraY = Double.MAX_VALUE;
 
-        switch(nextDir) {
+        switch (nextDir) {
             case NORTE -> dirPraY = (y == Math.ceil(y)) ? 1.0 : Math.ceil(y) - y;
             case SUL -> dirPraY = (y == Math.floor(y)) ? 1.0 : y - Math.floor(y);
             case LESTE -> dirPraX = (x == Math.ceil(x)) ? 1.0 : Math.ceil(x) - x;
@@ -201,61 +237,43 @@ public class CarAgent extends Agent {
         }
 
         double minDir = Math.min(PASSO, Math.min(dirPraX, dirPraY));
-        double intencaoX = x;
-        double intencaoY = y;
-
-        switch (nextDir) {
-            case NORTE -> intencaoY += minDir;
-            case SUL -> intencaoY -= minDir;
-            case LESTE -> intencaoX += minDir;
-            case OESTE -> intencaoX -= minDir;
-        }
         double movimentoMax = PASSO;
-        for (Coordenada outrosCarros : POSICOES_CARROS.values()) {
-            if(outrosCarros.getDirecao() == nextDir) {
-                boolean carroAFrente = false;
-                switch (nextDir) {
-                    case NORTE -> carroAFrente = outrosCarros.getY() > y;
-                    case SUL -> carroAFrente = outrosCarros.getY() < y;
-                    case LESTE -> carroAFrente = outrosCarros.getX() > x;
-                    case OESTE -> carroAFrente = outrosCarros.getX() < x;
-                }
-                if (carroAFrente) {
-                    double distAFrente = 0;
-                    switch (nextDir) {
-                        case NORTE -> distAFrente = outrosCarros.getY() - y;
-                        case SUL -> distAFrente = y - outrosCarros.getY();
-                        case LESTE -> distAFrente = outrosCarros.getX() - x;
-                        case OESTE -> distAFrente = x - outrosCarros.getX();
-                    }
-                    double movimentoSeguro = distAFrente - 0.1;
-                    movimentoMax = Math.min(movimentoMax, movimentoSeguro);
-                    if (movimentoMax < PASSO && primeiroMovimento)
-                        movimentoMax = 0;
-                }
+
+        // Evita colisões
+        for (Coordenada outros : POSICOES_CARROS.values()) {
+            if (outros == coordenada) continue;
+            if (outros.getDirecao() != nextDir) continue;
+
+            boolean carroAFrente = switch (nextDir) {
+                case NORTE -> outros.getY() > y;
+                case SUL -> outros.getY() < y;
+                case LESTE -> outros.getX() > x;
+                case OESTE -> outros.getX() < x;
+            };
+
+            if (carroAFrente) {
+                double distAFrente = switch (nextDir) {
+                    case NORTE -> outros.getY() - y;
+                    case SUL -> y - outros.getY();
+                    case LESTE -> outros.getX() - x;
+                    case OESTE -> x - outros.getX();
+                };
+                double movimentoSeguro = distAFrente - 0.1;
+                movimentoMax = Math.min(movimentoMax, movimentoSeguro);
             }
         }
-        minDir = Math.min(minDir, Math.max(0, movimentoMax));
-        minDir = Math.min(minDir, Math.min(dirPraX, dirPraY));
-        //System.out.println(getLocalName() + " em " + coordenada + " tentando mover " + PASSO + //debug print
-        //        " para " + nextDir + ", pode mover: " + minDir);
 
-        if (movimentoMax < PASSO) {
-            System.out.println(getLocalName() + " em " + coordenada + " reduziu velocidade para evitar colisão.");
-        }
+        double movimentoFinal = Math.max(0, Math.min(movimentoMax, minDir));
 
         switch (nextDir) {
-            case NORTE -> y += minDir;
-            case SUL -> y -= minDir;
-            case LESTE -> x += minDir;
-            case OESTE -> x -= minDir;
+            case NORTE -> y += movimentoFinal;
+            case SUL -> y -= movimentoFinal;
+            case LESTE -> x += movimentoFinal;
+            case OESTE -> x -= movimentoFinal;
         }
 
         coordenada = new Coordenada(getLocalName(), x, y, nextDir);
         POSICOES_CARROS.put(getLocalName(), coordenada);
-        if (x == Math.floor(x) && y == Math.floor(y) && primeiroMovimento) {
-            primeiroMovimento = false;
-        }
         System.out.println(getLocalName() + " moveu para " + coordenada);
     }
 
