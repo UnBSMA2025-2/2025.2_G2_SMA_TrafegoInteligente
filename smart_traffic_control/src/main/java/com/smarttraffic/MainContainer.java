@@ -23,10 +23,10 @@ public class MainContainer {
             profile.setParameter(Profile.GUI, "true");
             AgentContainer mainContainer = rt.createMainContainer(profile);
 
-            // =====================================================
-            // CRIA TODOS OS SEMÁFOROS E PARDALs DO GRID
-            // =====================================================
-            System.out.println("Iniciando semáforos e pardais do Grid...");
+            // =========================================================
+            // CRIA TODOS OS SEMÁFOROS, PARDALs E COORDENADORES DO GRID
+            // =========================================================
+            System.out.println("Iniciando semáforos, pardais e coordenadores do Grid...");
 
             for (Map.Entry<String, Coordenada> entry : Grid.listarTodas().entrySet()) {
                 String nome = entry.getKey();
@@ -52,6 +52,17 @@ public class MainContainer {
                         );
                         pardal.start();
                         Thread.sleep(100);
+                    }
+
+                    if (nome.startsWith("COORDENADOR_")) {
+                        Coordenada coord = entry.getValue();
+                        AgentController coordenador = mainContainer.createNewAgent(
+                                nome,
+                                "com.smarttraffic.agents.CoordenadorAgent",
+                                new Object[]{coord}
+                        );
+                        coordenador.start();
+                        Thread.sleep(150);
                     }
 
                 } catch (Exception e) {
