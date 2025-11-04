@@ -344,15 +344,19 @@ public class MainContainer {
         return status;
     }
 
-    /** Encerra todos os agentes e finaliza o container */
-    public static void shutdown() {
+    public static synchronized void shutdown() {
+        if (!systemActive) {
+            System.out.println("⚠️ Sistema já está encerrado ou em processo de desligamento.");
+            return;
+        }
+
         try {
+            systemActive = false;
             System.out.println("Encerrando todos os agentes...");
             for (AgentController car : activeCars.values()) {
                 car.kill();
             }
             activeCars.clear();
-            systemActive = false;
             System.out.println("✅ Sistema JADE encerrado.");
             System.exit(0);
         } catch (Exception e) {

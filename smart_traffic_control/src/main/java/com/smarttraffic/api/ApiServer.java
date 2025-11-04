@@ -56,6 +56,20 @@ public class ApiServer {
         // GET /api/status → retorna status geral do sistema
         get("/api/status", (req, res) -> gson.toJson(main.getSystemStatus()));
 
+        // POST /api/shutdown → encerra o sistema JADE
+        post("/api/shutdown", (req, res) -> {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500); // pequeno delay para resposta HTTP ser enviada
+                    main.shutdown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            return gson.toJson(Map.of("message", "Encerrando sistema JADE..."));
+        });
+
         System.out.println("✅ Servidor REST rodando em http://localhost:8080");
     }
 }
