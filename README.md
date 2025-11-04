@@ -83,7 +83,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 | Bruno   |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
 | Gabriel |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
 | Jonatas |          |     |
-| Lucas   |          |     |
+| Lucas   |   Frontend | Boa | [Confecção do GRID e Frontend](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/commits/feature/frontend-inicial/)|
 
 ## Outros 
 Quaisquer outras informações sobre o projeto podem ser descritas aqui. Não esqueça, entretanto, de informar sobre:
