@@ -7,7 +7,8 @@ import com.smarttraffic.model.Coordenada;
 
 public class PardalAgent extends Agent {
     private Coordenada coordenada;
-    private int carrosNaRua = 0; // contador simples de carros na rua
+    private int carrosNaRua = 0;
+    private String sufixoRua;
 
     @Override
     protected void setup() {
@@ -16,7 +17,8 @@ public class PardalAgent extends Agent {
             coordenada = (Coordenada) args[0];
         }
 
-        System.out.println(getLocalName() + " iniciado em " + coordenada);
+        sufixoRua = getLocalName().replace("PARDAL", "");
+        System.out.println(getLocalName() + " iniciado em " + coordenada + " (sufixo " + sufixoRua + ")");
 
         addBehaviour(new jade.core.behaviours.CyclicBehaviour() {
             @Override
@@ -26,26 +28,21 @@ public class PardalAgent extends Agent {
                 if (msg != null && msg.getPerformative() == ACLMessage.INFORM) {
                     String conteudo = msg.getContent();
                     String carro = msg.getSender().getLocalName();
+                    boolean mudou = false;
 
                     if ("Car entering street".equalsIgnoreCase(conteudo)) {
                         carrosNaRua++;
+                        mudou = true;
                         System.out.println(getLocalName() + " recebeu aviso de " + carro +
-                                " que está ENTRANDO na rua. Total de carros agora: " + carrosNaRua);
-
-                        // opcional: solicitar prioridade ao semáforo
-                        ACLMessage forward = new ACLMessage(ACLMessage.REQUEST);
-                        forward.addReceiver(new AID("TrafficLight", AID.ISLOCALNAME));
-                        forward.setContent("Request Priority");
-                        send(forward);
-                    }
-                    else if ("Car leaving street".equalsIgnoreCase(conteudo)) {
+                                " que está ENTRANDO na rua. Total: " + carrosNaRua);
+                    } else if ("Car leaving street".equalsIgnoreCase(conteudo)) {
                         if (carrosNaRua > 0) carrosNaRua--;
+                        mudou = true;
                         System.out.println(getLocalName() + " recebeu aviso de " + carro +
-                                " que está SAINDO da rua. Total de carros agora: " + carrosNaRua);
+                                " que está SAINDO da rua. Total: " + carrosNaRua);
                     }
-                    else {
-                        System.out.println(getLocalName() + " recebeu mensagem desconhecida de " + carro + ": " + conteudo);
-                    }
+
+                    if (mudou) notificarCoordenador();
                 } else {
                     block();
                 }
@@ -53,8 +50,18 @@ public class PardalAgent extends Agent {
         });
     }
 
+    private void notificarCoordenador() {
+        ACLMessage aviso = new ACLMessage(ACLMessage.INFORM);
+        aviso.addReceiver(new AID("Coordenador", AID.ISLOCALNAME));
+        aviso.setContent("CarCountUpdate:" + sufixoRua + ":" + carrosNaRua);
+        send(aviso);
+
+        System.out.println(getLocalName() +
+                " informou ao Coordenador que há " + carrosNaRua + " carro(s) na rua " + sufixoRua);
+    }
+
     @Override
     protected void takeDown() {
-        System.out.println(getLocalName() + " finalizado. Carros ainda na rua: " + carrosNaRua);
+        System.out.println(getLocalName() + " finalizado.");
     }
 }
