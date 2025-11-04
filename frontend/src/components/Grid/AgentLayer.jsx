@@ -2,19 +2,17 @@
 import React from 'react';
 import { gridConfig } from '../../services/mapConfig';
 import CarIcon from '../Agents/CarIcon';
-// 1. Importe o novo ícone
 import TrafficLightIcon from '../Agents/TrafficLightIcon';
 
 const GRID_WIDTH = gridConfig.width;
 const GRID_HEIGHT = gridConfig.height;
 
 const AgentLayer = () => {
-  // Pega os carros E os semáforos do config
   const { cars, trafficLights } = gridConfig.agents;
 
   return (
     <div className="agent-layer">
-      {/* Renderiza os Carros */}
+      {/* Renderiza os Carros (centralizados por padrão) */}
       {cars.map(car => {
         const style = {
           left: `${(car.x / GRID_WIDTH) * 100}%`,
@@ -29,7 +27,7 @@ const AgentLayer = () => {
         );
       })}
 
-      {/* 2. Renderiza os Semáforos */}
+      {/* Renderiza os Semáforos (deslocados) */}
       {trafficLights.map(light => {
         const style = {
           left: `${(light.x / GRID_WIDTH) * 100}%`,
@@ -37,9 +35,11 @@ const AgentLayer = () => {
           width: `${100 / GRID_WIDTH}%`,
           height: `${100 / GRID_HEIGHT}%`,
           
-          /* Ajuste para alinhar o semáforo no canto do cruzamento */
-          justifyContent: 'flex-start',
-          padding: '5px'
+          /* * A MÁGICA:
+           * Desloca o ícone para a direita da célula.
+           * Isso os coloca "ao lado" da estrada, não no meio.
+           */
+          justifyContent: 'flex-end',
         };
         return (
           <div key={light.id} className="agent-wrapper" style={style}>

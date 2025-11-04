@@ -6,19 +6,20 @@ const Controls = () => {
   return (
     <aside className="controls-panel">
       
-      {/* Indicador de Status */}
       <div className="status-indicator connected">
         CONECTADO AO SERVIDOR
       </div>
 
-      {/* Comandos de Simulação */}
       <div className="control-group">
         <h2>Simulação</h2>
-        <button className="btn btn-success">▶️ Iniciar</button>
-        <button className="btn btn-warning">⏹️ Resetar</button>
+        {/* --- ALTERAÇÃO AQUI --- */}
+        {/* Adicionamos um 'div' para agrupar os botões lado a lado */}
+        <div className="button-row">
+          <button className="btn btn-success">▶️ Iniciar</button>
+          <button className="btn btn-warning">⏹️ Resetar</button>
+        </div>
       </div>
 
-      {/* Comando: add N [spawn] */}
       <div className="control-group">
         <h2>Adicionar Veículo</h2>
         <form className="command-form">
@@ -26,7 +27,6 @@ const Controls = () => {
           <select id="spawn-point" name="spawn-point">
             <option value="spawn_0_3">Spawn (0, 3)</option>
             <option value="spawn_0_4">Spawn (0, 4)</option>
-            {/* TODO: Carregar spawns da API */}
           </select>
           
           <label htmlFor="car-count">Quantidade (N)</label>
@@ -36,7 +36,6 @@ const Controls = () => {
         </form>
       </div>
 
-      {/* Comando: remove X */}
       <div className="control-group">
         <h2>Remover Veículo</h2>
         <form className="command-form">
@@ -46,13 +45,11 @@ const Controls = () => {
         </form>
       </div>
 
-      {/* Display: list */}
       <div className="control-group">
         <h2>Veículos Ativos (list)</h2>
         <div className="list-container">
           <ul>
             <li>CarMock1 (X: 0, Y: 3)</li>
-            {/* TODO: Carregar veículos do WebSocket */}
           </ul>
         </div>
       </div>

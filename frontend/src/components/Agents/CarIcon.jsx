@@ -2,10 +2,6 @@
 import React from 'react';
 import './Agents.css';
 
-// 1. Correção: Importa da pasta 'images'
-import carIconUrl from '../../assets/images/car_black_1.png';
-
-// Mapeia a direção do backend (SUL, NORTE) para graus CSS
 const getRotation = (direction) => {
   switch (direction) {
     case 'NORTE':
@@ -23,17 +19,14 @@ const getRotation = (direction) => {
 
 const CarIcon = ({ direction }) => {
   const style = {
+    // Aplicamos a rotação no wrapper, não no ícone
     transform: `rotate(${getRotation(direction)})`,
   };
 
   return (
-    <div className="car-icon" style={style}>
-      {/* 2. Usa a tag <img> normal */}
-      <img 
-        src={carIconUrl} 
-        alt="Carro" 
-        className="car-svg-img" 
-      />
+    <div className="car-icon-wrapper" style={style}>
+      {/* Este é o novo "corpo" do carro feito em CSS */}
+      <div className="car-body-css"></div>
     </div>
   );
 };
