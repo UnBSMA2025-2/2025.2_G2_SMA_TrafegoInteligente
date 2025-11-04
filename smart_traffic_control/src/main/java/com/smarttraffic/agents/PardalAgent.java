@@ -42,7 +42,9 @@ public class PardalAgent extends Agent {
                                 " que está SAINDO da rua. Total: " + carrosNaRua);
                     }
 
-                    if (mudou) notificarCoordenador();
+                    if (mudou) {
+                        notificarCoordenador();
+                    }
                 } else {
                     block();
                 }
@@ -51,13 +53,16 @@ public class PardalAgent extends Agent {
     }
 
     private void notificarCoordenador() {
+        // Envia para o coordenador correto baseado no sufixo
+        String coordenadorName = "COORDENADOR" + sufixoRua.substring(0, 4) + "_C"; // Ex: _0_0_N -> COORDENADOR_0_0_C
+        
         ACLMessage aviso = new ACLMessage(ACLMessage.INFORM);
-        aviso.addReceiver(new AID("Coordenador", AID.ISLOCALNAME));
+        aviso.addReceiver(new AID(coordenadorName, AID.ISLOCALNAME));
         aviso.setContent("CarCountUpdate:" + sufixoRua + ":" + carrosNaRua);
         send(aviso);
 
-        System.out.println(getLocalName() +
-                " informou ao Coordenador que há " + carrosNaRua + " carro(s) na rua " + sufixoRua);
+        System.out.println(getLocalName() + " informou ao " + coordenadorName + 
+                " que há " + carrosNaRua + " carro(s) na rua " + sufixoRua);
     }
 
     @Override
