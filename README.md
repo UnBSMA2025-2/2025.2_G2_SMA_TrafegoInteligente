@@ -43,7 +43,24 @@ Para instalar no Windows, acessar `manualWindows.md` na pasta tutoriais do repos
 Para instalar no Linux, acessar `manualLinux.md` na pasta tutoriais do repositório do projeto.
 
 ## Uso 
-Explique como usar seu projeto.
+Checar [Tutoriais e manuais](./tutoriais/) para instalação e para iniciar o Sistema
+
+(uso pelo console) Após inicialização do console, utilizar comandos:
+
+add n para adicionar n carros à simulação em pontos de spawn aleatórios
+
+add n pontoSpawn para adicionar n carros ao ponto de spawn pontoSpawn
+
+remove nomeCarro para remover o carro de nome nomeCarro
+
+remove n para remove os n primeiros carros adicionados à simulação
+
+list para listar carros ativos
+
+listspawn para listar pontos de spawn
+
+exit para sair da aplicação
+
 Procure ilustrar em passos, com apoio de telas do software, seja com base na interface gráfica, seja com base no terminal.
 Nessa seção, deve-se revelar de forma clara sobre o funcionamento do software.
 
@@ -61,7 +78,12 @@ TEMPO: +/- 15min
 Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 |Nome do Membro | Contribuição | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits)
 | -- | -- | -- | -- |
-| Fulano  |  Programação dos Fatos da Base de Conhecimento Lógica | Boa | Commit tal (com link)
+| Arthur  |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
+| Breno   |          |     |
+| Bruno   |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
+| Gabriel |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
+| Jonatas |          |     |
+| Lucas   |          |     |
 
 ## Outros 
 Quaisquer outras informações sobre o projeto podem ser descritas aqui. Não esqueça, entretanto, de informar sobre:
