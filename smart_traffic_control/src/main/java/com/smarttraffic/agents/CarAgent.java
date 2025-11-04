@@ -314,6 +314,7 @@ public class CarAgent extends Agent {
                 case SUL -> outros.getY() < y;
                 case LESTE -> outros.getX() > x;
                 case OESTE -> outros.getX() < x;
+                case COORDENADOR -> false;
             };
 
             if (carroAFrente) {
@@ -322,6 +323,7 @@ public class CarAgent extends Agent {
                     case SUL -> y - outros.getY();
                     case LESTE -> outros.getX() - x;
                     case OESTE -> x - outros.getX();
+                    case COORDENADOR -> 0.0;
                 };
                 double movimentoSeguro = distAFrente - 0.1;
                 movimentoMax = Math.min(movimentoMax, movimentoSeguro);
