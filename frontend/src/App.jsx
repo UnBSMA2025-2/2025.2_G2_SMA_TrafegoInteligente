@@ -1,35 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// frontend/src/App.jsx
+import React from 'react';
+import Header from './components/Layout/Header';
+import Controls from './components/Controls/Controls';
+import Grid from './components/Grid/Grid';
+import AgentLayer from './components/Grid/AgentLayer';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="app-container">
+      {/* 1. O Cabeçalho fica no topo */}
+      <Header />
+
+      {/* 2. O conteúdo principal com layout flexível */}
+      <div className="main-content">
+        
+        {/* 3. O Painel de Controle na esquerda */}
+        <Controls />
+        
+        {/* 4. A Simulação na direita */}
+        <main className="simulation-area">
+          <div className="simulation-wrapper">
+            <Grid />
+            <AgentLayer />
+          </div>
+        </main>
+
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;

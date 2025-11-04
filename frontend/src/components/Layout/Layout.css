@@ -1,0 +1,24 @@
+/* frontend/src/components/Layout/Layout.css */
+.app-header {
+  width: 100%;
+  height: 70px; /* Altura fixa */
+  display: flex;
+  align-items: center;
+  
+  /* PAINEL ESCURO */
+  background-color: var(--background-panel);
+  color: var(--text-primary);
+  
+  padding: 0 25px;
+  
+  /* Borda sutil */
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}

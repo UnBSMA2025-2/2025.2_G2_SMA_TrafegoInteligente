@@ -1,0 +1,21 @@
+/* frontend/src/components/Grid/Grid.css */
+.grid-container {
+  border: 2px solid #555;
+  min-width: 400px;
+  max-width: 800px;
+  margin: 0; /* A área de simulação vai centralizar */
+  aspect-ratio: 1 / 1;
+}
+
+.grid-cell {
+  aspect-ratio: 1 / 1;
+  /* REMOVEMOS A BORDA DA CÉLULA */
+  /* border: 1px solid #777; */
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Adiciona uma transição suave de cor */
+  transition: background-color 0.3s ease;
+}

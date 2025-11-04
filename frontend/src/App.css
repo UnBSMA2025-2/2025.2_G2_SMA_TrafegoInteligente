@@ -1,42 +1,92 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* frontend/src/App.css */
+
+:root {
+  --background-dark: #121212;
+  --background-panel: #1e1e1e;
+  --border-color: #333;
+  --text-primary: #fafafa;
+  --text-secondary: #aaa;
+  --accent-blue: #007bff;
+  --accent-blue-hover: #0056b3;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* FUNDO ESCURO PRINCIPAL */
+  background-color: var(--background-dark);
+  color: var(--text-primary);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Container do conteúdo (Painel + Grid) */
+.main-content {
+  display: flex;
+  flex-direction: row; /* Lado a lado */
+  flex-grow: 1;
+  height: calc(100vh - 70px); /* Altura - altura do header */
+  padding: 20px;
+  gap: 20px;
+}
+
+/* ÁREA DA SIMULAÇÃO (DIREITA) */
+.simulation-area {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* WRAPPER DO GRID (Onde o mapa fica) */
+.simulation-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 85vh; /* O grid pode ficar um pouco maior */
+  max-height: 85vh;
+  aspect-ratio: 1 / 1;
+  
+  /* ARREDONDADO */
+  border-radius: 12px;
+  overflow: hidden; /* Corta as bordas do grid */
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.agent-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/*
+ * RESPONSIVIDADE (Celulares e Tablets)
+ */
+@media (max-width: 900px) {
+  .main-content {
+    flex-direction: column; /* Empilha o painel e o grid */
+    overflow-y: auto; /* Permite scroll na página */
+    padding: 10px;
+    gap: 10px;
   }
-  to {
-    transform: rotate(360deg);
+
+  .simulation-area {
+    /* Define uma altura mínima para o grid não sumir */
+    min-height: 400px; 
+    padding: 0;
   }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
 }

@@ -1,0 +1,135 @@
+/* frontend/src/components/Controls/Controls.css */
+
+/* O PAINEL PRINCIPAL */
+.controls-panel {
+  width: 380px; /* Largura fixa */
+  min-width: 320px; /* Largura mínima */
+  
+  /* PAINEL ESCURO E ARREDONDADO */
+  background-color: var(--background-panel);
+  border-radius: 12px;
+  
+  padding: 25px;
+  height: 100%;
+  overflow-y: auto; /* Adiciona scroll se o conteúdo for grande */
+  color: var(--text-primary);
+  
+  /* Garante que o painel não encolha */
+  flex-shrink: 0; 
+}
+
+/* Responsividade: Em telas pequenas, ocupa a largura total */
+@media (max-width: 900px) {
+  .controls-panel {
+    width: 100%;
+    /* Remove a largura fixa para se adaptar */
+    max-width: none; 
+    height: auto; /* Altura automática */
+    padding: 15px;
+    box-sizing: border-box; /* Garante que o padding não estoure */
+  }
+}
+
+.controls-panel h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+.controls-panel h2:first-of-type {
+  margin-top: 0;
+}
+
+/* Indicador de Status */
+.status-indicator {
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  color: white;
+  background-color: #dc3545; /* Vermelho (desconectado) */
+  margin-bottom: 20px;
+}
+.status-indicator.connected {
+  background-color: #28a745; /* Verde (conectado) */
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+/* Grupos de Formulário */
+.command-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.command-form label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Inputs e Selects Modernos */
+.command-form input,
+.command-form select {
+  background-color: #2c2c2c;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 1rem;
+}
+.command-form input:focus,
+.command-form select:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+/* Botões Modernos */
+.btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.btn-primary { background-color: #007bff; color: white; }
+.btn-primary:hover { background-color: #0056b3; }
+
+.btn-danger { background-color: #dc3545; color: white; }
+.btn-danger:hover { background-color: #c82333; }
+
+.btn-success { background-color: #28a745; color: white; }
+.btn-success:hover { background-color: #218838; }
+
+.btn-warning { background-color: #ffc107; color: #212529; }
+.btn-warning:hover { background-color: #e0a800; }
+
+/* Lista de Veículos */
+.list-container {
+  background-color: #2c2c2c;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  height: 150px;
+  overflow-y: auto;
+  padding: 15px;
+}
+.list-container ul {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.list-container li {
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 0.9rem;
+  color: #ccc;
+  padding: 4px 0;
+}
