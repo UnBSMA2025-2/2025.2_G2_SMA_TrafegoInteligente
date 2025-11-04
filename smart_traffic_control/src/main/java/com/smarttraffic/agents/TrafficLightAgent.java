@@ -4,84 +4,123 @@ import com.smarttraffic.model.TrafficConfig;
 import com.smarttraffic.model.Coordenada;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
 
 /**
- * Agente de semáforo responsável por alternar entre os estados
- * verde e vermelho, responder a requisições de status e ajustar
- * o tempo de espera em função de mensagens de prioridade.
+ * Agente de Semáforo ATUALIZADO:
+ * - Recebe comandos OPEN com tempo específico
+ * - Mantém controle interno do tempo verde
+ * - Pode auto-fechar após o tempo expirar (backup)
  */
 public class TrafficLightAgent extends Agent {
 
-    private int redTime = TrafficConfig.BASE_RED_TIME;
-    private int greenTime = TrafficConfig.BASE_GREEN_TIME;
-    private volatile boolean isGreen = false;
+    private boolean isGreen = false;
     private Coordenada coordenada;
+    private int tempoVerdeAtual = TrafficConfig.BASE_GREEN_TIME;
+    private long tempoAbertura = 0;
 
     @Override
     protected void setup() {
-        // Recupera a coordenada passada na criação do agente
         Object[] args = getArguments();
         if (args != null && args.length > 0 && args[0] instanceof Coordenada) {
             coordenada = (Coordenada) args[0];
         }
 
         System.out.println(getLocalName() + " iniciado em " +
-                (coordenada != null ? coordenada : "coordenada não informada"));
+                (coordenada != null ? coordenada : "coordenada não informada") +
+                ". Estado inicial: VERMELHO.");
 
-        // Comportamento para responder a mensagens de carros
         addBehaviour(new CyclicBehaviour() {
             @Override
             public void action() {
                 ACLMessage msg = receive();
-                if (msg != null && msg.getPerformative() == ACLMessage.REQUEST) {
 
-                    // Carro pedindo o status atual do semáforo
-                    if ("STATUS".equalsIgnoreCase(msg.getContent())) {
+                if (msg != null) {
+                    String conteudo = msg.getContent();
+
+                    // Carros pedem STATUS
+                    if (msg.getPerformative() == ACLMessage.REQUEST &&
+                            "STATUS".equalsIgnoreCase(conteudo)) {
+
                         ACLMessage reply = msg.createReply();
                         reply.setPerformative(ACLMessage.INFORM);
                         reply.setContent(isGreen ? "GREEN" : "RED");
                         send(reply);
                     }
-                    // Mensagem de prioridade — reduz tempo de vermelho
-                    else {
-                        redTime = Math.max(2000, redTime - TrafficConfig.PRIORITY_REDUCTION);
-                        System.out.println(getLocalName() +
-                                " recebeu prioridade, novo tempo de vermelho: " + redTime + "ms");
+
+                    // Coordenador envia comandos
+                    else if (msg.getPerformative() == ACLMessage.INFORM) {
+
+                        // COMANDO OPEN COM TEMPO: "OPEN:5000"
+                        if (conteudo.startsWith("OPEN:")) {
+                            try {
+                                String[] partes = conteudo.split(":");
+                                if (partes.length >= 2) {
+                                    tempoVerdeAtual = Integer.parseInt(partes[1]);
+                                }
+                                
+                                if (!isGreen) {
+                                    isGreen = true;
+                                    tempoAbertura = System.currentTimeMillis();
+                                    System.out.println(getLocalName() + " recebeu OPEN - agora está VERDE por " + tempoVerdeAtual + "ms");
+                                    
+                                    // Inicia comportamento para verificar expiração do tempo
+                                    addBehaviour(new VerificaTempoVerde());
+                                }
+                            } catch (NumberFormatException e) {
+                                System.err.println(getLocalName() + " erro ao parsear tempo: " + conteudo);
+                            }
+                        } 
+                        // COMANDO CLOSE simples
+                        else if ("CLOSE".equalsIgnoreCase(conteudo)) {
+                            if (isGreen) {
+                                isGreen = false;
+                                tempoVerdeAtual = TrafficConfig.BASE_GREEN_TIME;
+                                System.out.println(getLocalName() + " recebeu CLOSE - agora está VERMELHO.");
+                            }
+                        }
                     }
 
+                    else {
+                        block();
+                    }
                 } else {
                     block();
                 }
             }
         });
-
-        // Comportamento para alternar automaticamente o semáforo
-        addBehaviour(new TickerBehaviour(this, greenTime + redTime) {
-            @Override
-            protected void onTick() {
-                isGreen = !isGreen;
-                System.out.println(getLocalName() + " está " + (isGreen ? "VERDE" : "VERMELHO"));
-
-                // Reseta tempos para valores padrão após cada ciclo
-                redTime = TrafficConfig.BASE_RED_TIME;
-                greenTime = TrafficConfig.BASE_GREEN_TIME;
-            }
-        });
     }
 
-    // Métodos utilitários
+    /**
+     * Comportamento que verifica se o tempo verde expirou
+     * (Backup caso o coordenador falhe em enviar CLOSE)
+     */
+    private class VerificaTempoVerde extends CyclicBehaviour {
+        private boolean completed = false;
+        
+        @Override
+        public void action() {
+            if (completed || !isGreen) {
+                return;
+            }
+            
+            long agora = System.currentTimeMillis();
+            long tempoDecorrido = agora - tempoAbertura;
+            
+            if (tempoDecorrido >= tempoVerdeAtual) {
+                // Tempo expirou - auto-fecha como backup
+                isGreen = false;
+                completed = true;
+                System.out.println(getLocalName() + " TEMPO VERDE EXPIRADO - auto-fechando após " + tempoVerdeAtual + "ms");
+            } else {
+                // Ainda tem tempo, verifica novamente em 500ms
+                block(500);
+            }
+        }
+    }
+
     public boolean isGreen() {
         return isGreen;
-    }
-
-    public int getGreenTime() {
-        return greenTime;
-    }
-
-    public int getRedTime() {
-        return redTime;
     }
 
     public Coordenada getCoordenada() {
