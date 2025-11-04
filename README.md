@@ -79,7 +79,7 @@ Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
 |Nome do Membro | Contribuição | Significância da Contribuição para o Projeto (Excelente/Boa/Regular/Ruim/Nula) | Comprobatórios (ex. links para commits)
 | -- | -- | -- | -- |
 | Arthur  |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
-| Breno   |          |     |
+| Breno   |  Frontend | Boa | [Comunicação Backend e Frontend](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/commits/feature/frontend-inicial/)
 | Bruno   |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
 | Gabriel |  Backend | Boa | [Coordenadas](https://github.com/UnBSMA2025-2/2025.2_G2_SMA_TrafegoInteligente/pull/2)
 | Jonatas |          |     |
