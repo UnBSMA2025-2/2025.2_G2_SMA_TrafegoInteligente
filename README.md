@@ -1,9 +1,8 @@
 # Tráfego Inteligente
 
-**Disciplina**: FGA0053 - Sistemas Multiagentes <br>
-**Nro do Grupo (de acordo com a Planilha de Divisão dos Grupos)**: 2
-
-**Frente de Pesquisa**: behaviour
+**Disciplina**:  FGA0053 - TÓPICOS ESPECIAIS EM PROGRAMAÇÃO (Sistemas Multiagentes)<br>
+**Número do Grupo**: 2
+**Frente de Pesquisa**: Behaviour
 
 ## Alunos
 |Matrícula | Aluno |
