@@ -1,5 +1,11 @@
 package com.smarttraffic.agents;
 
+import com.smarttraffic.api.EventSocket;
+
+import com.google.gson.Gson;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import com.smarttraffic.model.TrafficConfig;
 import com.smarttraffic.model.Coordenada;
 import jade.core.Agent;
@@ -62,11 +68,30 @@ public class TrafficLightAgent extends Agent {
             @Override
             protected void onTick() {
                 isGreen = !isGreen;
-                System.out.println(getLocalName() + " está " + (isGreen ? "VERDE" : "VERMELHO"));
+                String estado = isGreen ? "VERDE" : "VERMELHO";
+                String agente = getLocalName();
+
+                // Log normal no terminal
+                System.out.println(agente + " está " + estado);
+
+                // ===== NOVO: Envio estruturado via WebSocket =====
+                try {
+                    String timestamp = java.time.LocalDateTime.now().toString();
+
+                    java.util.Map<String, Object> evento = new java.util.HashMap<>();
+                    evento.put("agent", agente);
+                    evento.put("state", estado);
+                    evento.put("timestamp", timestamp);
+
+                    String json = new com.google.gson.Gson().toJson(evento);
+                    com.smarttraffic.api.EventSocket.broadcastMessage(json);
+                } catch (Exception e) {
+                    System.err.println("Erro ao enviar evento WebSocket: " + e.getMessage());
+                }
 
                 // Reseta tempos para valores padrão após cada ciclo
-                redTime = TrafficConfig.BASE_RED_TIME;
-                greenTime = TrafficConfig.BASE_GREEN_TIME;
+                redTime = com.smarttraffic.model.TrafficConfig.BASE_RED_TIME;
+                greenTime = com.smarttraffic.model.TrafficConfig.BASE_GREEN_TIME;
             }
         });
     }
