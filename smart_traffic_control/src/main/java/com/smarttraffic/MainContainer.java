@@ -1,5 +1,8 @@
 package com.smarttraffic;
 
+import com.smarttraffic.api.ApiServer;
+import com.smarttraffic.api.EventSocket;
+
 import com.smarttraffic.model.Grid;
 import com.smarttraffic.model.Coordenada;
 import jade.core.Profile;
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
 public class MainContainer {
 
     private static final Map<String, AgentController> activeCars = new HashMap<>();
+    private static AgentContainer mainContainerRef;  // referência global pro container JADE
+    private static boolean systemActive = false;     // indica se o sistema está rodando
 
     public static void main(String[] args) {
         try {
@@ -22,6 +27,8 @@ public class MainContainer {
             Profile profile = new ProfileImpl();
             profile.setParameter(Profile.GUI, "true");
             AgentContainer mainContainer = rt.createMainContainer(profile);
+            mainContainerRef = mainContainer;
+            systemActive = true;
 
             // =========================================================
             // CRIA TODOS OS SEMÁFOROS, PARDALs E COORDENADORES DO GRID
@@ -78,21 +85,24 @@ public class MainContainer {
 
             System.out.println("🌐 Servidor REST iniciado em http://localhost:8080");
             System.out.println("=====================================================\n");
+
             // INICIA O SERVIDOR WEBSOCKET
             new Thread(() -> {
-                com.smarttraffic.api.EventSocket socketServer = new com.smarttraffic.api.EventSocket(8081);
+                EventSocket socketServer = new EventSocket(8081);
                 socketServer.start();
             }).start();
 
             System.out.println("🌐 Servidor WebSocket iniciado em ws://localhost:8081");
             System.out.println("=====================================================\n");
 
+            // =====================================================
             // INTERAÇÃO PELO CONSOLE
+            // =====================================================
             System.out.println("Sistema iniciado.");
             System.out.println("Comandos: add N [spawn] | remove X | list | listspawn | exit");
 
             // Aguarda conexão WebSocket antes de seguir
-            com.smarttraffic.api.EventSocket.waitForConnection();
+            EventSocket.waitForConnection();
 
             try (Scanner scanner = new Scanner(System.in)) {
                 String input;
@@ -114,6 +124,7 @@ public class MainContainer {
 
                     if (input.equalsIgnoreCase("exit")) {
                         System.out.println("Encerrando sistema...");
+                        shutdown();
                         break;
 
                     } else if (input.equalsIgnoreCase("listspawn")) {
@@ -242,6 +253,140 @@ public class MainContainer {
 
         } catch (StaleProxyException e) {
             e.printStackTrace();
+        }
+    }
+
+    // =====================================================
+    // =============== MÉTODOS USADOS PELA API =============
+    // =====================================================
+
+    /** Lista os pontos de spawn disponíveis no grid */
+    public List<Map<String, Object>> listSpawns() {
+        List<Map<String, Object>> spawns = new ArrayList<>();
+
+        Grid.listarTodas().forEach((key, value) -> {
+            if (key.startsWith("SPAWN_")) {
+                Map<String, Object> spawn = new HashMap<>();
+                spawn.put("name", key);
+                spawn.put("x", value.getX());
+                spawn.put("y", value.getY());
+                spawns.add(spawn);
+            }
+        });
+
+        return spawns;
+    }
+
+    /** Lista os carros ativos */
+    public List<String> listCars() {
+        return new ArrayList<>(activeCars.keySet());
+    }
+
+    /** Adiciona N carros em um spawn específico ou aleatório */
+    public String addCars(int n, String spawnSelecionado) {
+        try {
+            List<Map.Entry<String, Coordenada>> spawns = Grid.listarTodas().entrySet().stream()
+                    .filter(e -> e.getKey().startsWith("SPAWN_"))
+                    .collect(Collectors.toList());
+
+            if (spawns.isEmpty()) {
+                return "Nenhum ponto de SPAWN disponível.";
+            }
+
+            List<Map.Entry<String, Coordenada>> spawnsDisponiveis = spawns;
+            if (spawnSelecionado != null) {
+                spawnsDisponiveis = spawns.stream()
+                        .filter(e -> e.getKey().equalsIgnoreCase(spawnSelecionado))
+                        .collect(Collectors.toList());
+
+                if (spawnsDisponiveis.isEmpty()) {
+                    return "Spawn não encontrado: " + spawnSelecionado;
+                }
+            }
+
+            Random random = new Random();
+            for (int i = 1; i <= n; i++) {
+                String carName = "Car" + (activeCars.size() + 1);
+                var spawn = spawnsDisponiveis.get(random.nextInt(spawnsDisponiveis.size()));
+                Coordenada coord = spawn.getValue();
+
+                AgentController car = mainContainerRef.createNewAgent(
+                        carName,
+                        "com.smarttraffic.agents.CarAgent",
+                        new Object[]{coord}
+                );
+                car.start();
+                activeCars.put(carName, car);
+            }
+
+            return n + " carro(s) adicionados no spawn " +
+                    (spawnSelecionado != null ? spawnSelecionado : "aleatório") + ".";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao adicionar carros: " + e.getMessage();
+        }
+    }
+
+    /** Remove carro pelo nome */
+    public String removeCar(String carName) {
+        try {
+            AgentController car = activeCars.remove(carName);
+            if (car != null) {
+                car.kill();
+                return "Carro " + carName + " removido.";
+            } else {
+                return "Carro não encontrado: " + carName;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao remover carro: " + e.getMessage();
+        }
+    }
+
+    /** Retorna informações gerais do sistema (para frontend) */
+    public Map<String, Object> getSystemStatus() {
+        // Cria o mapa explicitamente para evitar inferência genérica do Java 21
+        Map<String, Object> status = new HashMap<>();
+
+        // Adiciona status do sistema
+        status.put("active", systemActive);
+        status.put("cars", activeCars.size());
+
+        // Conta quantos semáforos existem no grid
+        long semaforos = Grid.listarTodas().keySet().stream()
+                .filter(k -> k.startsWith("SEMAFORO_"))
+                .count();
+
+        // Conta quantos pardais existem no grid
+        long pardais = Grid.listarTodas().keySet().stream()
+                .filter(k -> k.startsWith("PARDAL_"))
+                .count();
+
+        // Adiciona ao mapa
+        status.put("trafficLights", semaforos);
+        status.put("pardais", pardais);
+
+        // Retorna o mapa completo
+        return status;
+    }
+
+    public static synchronized void shutdown() {
+        if (!systemActive) {
+            System.out.println("⚠️ Sistema já está encerrado ou em processo de desligamento.");
+            return;
+        }
+
+        try {
+            systemActive = false;
+            System.out.println("Encerrando todos os agentes...");
+            for (AgentController car : activeCars.values()) {
+                car.kill();
+            }
+            activeCars.clear();
+            System.out.println("✅ Sistema JADE encerrado.");
+            System.exit(0);
+        } catch (Exception e) {
+            System.err.println("Erro ao encerrar o sistema: " + e.getMessage());
         }
     }
 }
