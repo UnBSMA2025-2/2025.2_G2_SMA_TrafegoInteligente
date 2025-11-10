@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { connectWebSocket, disconnectWebSocket } from "../../services/socket";
+
 import {
   getSpawns,
   getCars,
@@ -21,8 +23,17 @@ const Controls = () => {
   // Carrega spawns, status e carros ao iniciar
   useEffect(() => {
     loadInitialData();
-    // Exemplo: log inicial
     addLog("Painel iniciado. Aguardando conexão com o servidor...");
+
+    // Inicia conexão WebSocket
+    const ws = connectWebSocket((msg) => {
+      addLog(`WebSocket: ${msg}`);
+    });
+
+    // Fecha a conexão ao desmontar o componente
+    return () => {
+      disconnectWebSocket();
+    };
   }, []);
 
   async function loadInitialData() {
@@ -85,6 +96,15 @@ const Controls = () => {
           <button className="btn btn-warning" onClick={handleShutdown}>
             ⏹️ Encerrar Sistema
           </button>
+        </div>
+      </div>
+
+      <div className="control-group">
+        <h2>Monitoramento</h2>
+        <div className="button-row">
+          <a href="/logs" className="btn btn-info">
+            🧠 Ver Logs em Tempo Real
+          </a>
         </div>
       </div>
 

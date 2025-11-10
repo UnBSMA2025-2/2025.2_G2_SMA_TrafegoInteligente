@@ -135,3 +135,15 @@
   color: #ccc;
   padding: 4px 0;
 }
+
+.logs-container {
+  background-color: #111;
+  color: #0f0;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 10px;
+  border-radius: 6px;
+  height: 180px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
