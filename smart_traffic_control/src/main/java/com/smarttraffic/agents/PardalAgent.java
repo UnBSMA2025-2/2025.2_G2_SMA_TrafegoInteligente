@@ -1,5 +1,10 @@
 package com.smarttraffic.agents;
 
+import com.smarttraffic.api.EventSocket;
+import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
+
 import jade.core.AID;
 import jade.core.Agent;
 import jade.lang.acl.ACLMessage;
@@ -35,11 +40,13 @@ public class PardalAgent extends Agent {
                         mudou = true;
                         System.out.println(getLocalName() + " recebeu aviso de " + carro +
                                 " que está ENTRANDO na rua. Total: " + carrosNaRua);
+                        enviarEventoWebSocket("car_enter");
                     } else if ("Car leaving street".equalsIgnoreCase(conteudo)) {
                         if (carrosNaRua > 0) carrosNaRua--;
                         mudou = true;
                         System.out.println(getLocalName() + " recebeu aviso de " + carro +
                                 " que está SAINDO da rua. Total: " + carrosNaRua);
+                        enviarEventoWebSocket("car_exit");
                     }
 
                     if (mudou) {
@@ -63,6 +70,23 @@ public class PardalAgent extends Agent {
 
         System.out.println(getLocalName() + " informou ao " + coordenadorName + 
                 " que há " + carrosNaRua + " carro(s) na rua " + sufixoRua);
+    }
+
+    private void enviarEventoWebSocket(String tipoEvento) {
+        try {
+            Map<String, Object> evento = new HashMap<>();
+            evento.put("agent", getLocalName());
+            evento.put("event", tipoEvento);
+            evento.put("streetSuffix", sufixoRua);
+            evento.put("carCount", carrosNaRua);
+            evento.put("timestamp", java.time.LocalDateTime.now().toString());
+
+            String json = new Gson().toJson(evento);
+            EventSocket.broadcastMessage(json);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar evento WebSocket do pardal: " + e.getMessage());
+        }
     }
 
     @Override
