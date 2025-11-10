@@ -73,11 +73,26 @@ public class MainContainer {
             System.out.println("Todos os semáforos e pardais foram iniciados com base no Grid.");
             System.out.println("=====================================================\n");
 
-            // =====================================================
+            // INICIA O SERVIDOR REST
+            new Thread(() -> ApiServer.start(new MainContainer())).start();
+
+            System.out.println("🌐 Servidor REST iniciado em http://localhost:8080");
+            System.out.println("=====================================================\n");
+            // INICIA O SERVIDOR WEBSOCKET
+            new Thread(() -> {
+                com.smarttraffic.api.EventSocket socketServer = new com.smarttraffic.api.EventSocket(8081);
+                socketServer.start();
+            }).start();
+
+            System.out.println("🌐 Servidor WebSocket iniciado em ws://localhost:8081");
+            System.out.println("=====================================================\n");
+
             // INTERAÇÃO PELO CONSOLE
-            // =====================================================
             System.out.println("Sistema iniciado.");
             System.out.println("Comandos: add N [spawn] | remove X | list | listspawn | exit");
+
+            // Aguarda conexão WebSocket antes de seguir
+            com.smarttraffic.api.EventSocket.waitForConnection();
 
             try (Scanner scanner = new Scanner(System.in)) {
                 String input;
