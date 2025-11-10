@@ -1,0 +1,85 @@
+/* frontend/src/components/Agents/Agents.css */
+
+/* Wrapper para todos os agentes */
+.agent-wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Padrão é centralizado (para carros) */
+  transition: left 0.3s linear, top 0.3s linear;
+  
+  /* Garante que o padding não mude o tamanho */
+  box-sizing: border-box;
+  padding: 5px; /* Um pequeno espaço das bordas */
+}
+
+/* --- NOVO ÍCONE DE CARRO (CSS) --- */
+.car-icon-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease-in-out;
+  pointer-events: none;
+}
+
+.car-body-css {
+  width: 40%;  /* Mais estreito */
+  height: 75%; /* Mais comprido */
+  
+  /* Cor do carro (branco para contrastar) */
+  background-color: #fafafa;
+  border-radius: 6px; /* Arredondado */
+  
+  /* Sombra para destacar */
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  border: 1px solid #aaa;
+}
+
+
+/* --- ÍCONE DE SEMÁFORO (CSS Modernizado) --- */
+.traffic-light-icon {
+  background-color: #222; /* Corpo de plástico escuro */
+  border-radius: 8px; /* Mais arredondado */
+  padding: 6px;
+  display: flex;
+  flex-direction: column; /* Luzes verticais */
+  gap: 5px; /* Espaço entre as luzes */
+  border: 1px solid #000;
+  box-shadow: 0 0 8px rgba(0,0,0,0.7);
+  
+  /* Tamanho (fino e alto) */
+  width: 35%; 
+  height: 90%;
+  min-width: 15px;
+  
+  /* Garante que o tamanho seja calculado corretamente */
+  box-sizing: border-box; 
+}
+
+.traffic-light-icon .light {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+/* Luzes apagadas */
+.traffic-light-icon .light.red    { background-color: #5d2222; }
+.traffic-light-icon .light.yellow { background-color: #5e5a2c; }
+.traffic-light-icon .light.green  { background-color: #22533a; }
+
+/* Luzes acesas (com brilho) */
+.traffic-light-icon .light.red.active {
+  background-color: #ff0000;
+  box-shadow: 0 0 12px #ff0000, 0 0 5px #ff0000 inset;
+}
+.traffic-light-icon .light.yellow.active {
+  background-color: #ffff00;
+  box-shadow: 0 0 12px #ffff00, 0 0 5px #ffff00 inset;
+}
+.traffic-light-icon .light.green.active {
+  background-color: #00ff00;
+  box-shadow: 0 0 12px #00ff00, 0 0 5px #00ff00 inset;
+}
