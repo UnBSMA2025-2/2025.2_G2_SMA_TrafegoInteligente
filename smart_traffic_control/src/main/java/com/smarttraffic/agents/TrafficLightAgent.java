@@ -1,5 +1,7 @@
 package com.smarttraffic.agents;
 
+import com.smarttraffic.api.EventSocket;
+
 import com.smarttraffic.model.TrafficConfig;
 import com.smarttraffic.model.Coordenada;
 import jade.core.Agent;
@@ -63,6 +65,8 @@ public class TrafficLightAgent extends Agent {
                                     isGreen = true;
                                     tempoAbertura = System.currentTimeMillis();
                                     System.out.println(getLocalName() + " recebeu OPEN - agora está VERDE por " + tempoVerdeAtual + "ms");
+
+                                    enviarEstadoWebSocket("VERDE");
                                     
                                     // Inicia comportamento para verificar expiração do tempo
                                     addBehaviour(new VerificaTempoVerde());
@@ -77,6 +81,9 @@ public class TrafficLightAgent extends Agent {
                                 isGreen = false;
                                 tempoVerdeAtual = TrafficConfig.BASE_GREEN_TIME;
                                 System.out.println(getLocalName() + " recebeu CLOSE - agora está VERMELHO.");
+
+                                // ===== Envio via WebSocket =====
+                                enviarEstadoWebSocket("VERMELHO");
                             }
                         }
                     }
@@ -112,10 +119,33 @@ public class TrafficLightAgent extends Agent {
                 isGreen = false;
                 completed = true;
                 System.out.println(getLocalName() + " TEMPO VERDE EXPIRADO - auto-fechando após " + tempoVerdeAtual + "ms");
+                
+                // ===== Envio via WebSocket =====
+                enviarEstadoWebSocket("VERMELHO");
+                
             } else {
                 // Ainda tem tempo, verifica novamente em 500ms
                 block(500);
             }
+        }
+    }
+
+    // =====================================================
+    // =========== MÉTODO DE ENVIO WEBSOCKET ===============
+    // =====================================================
+    private void enviarEstadoWebSocket(String estado) {
+        try {
+            String timestamp = java.time.LocalDateTime.now().toString();
+            java.util.Map<String, Object> evento = new java.util.HashMap<>();
+            evento.put("agent", getLocalName());
+            evento.put("state", estado);
+            evento.put("timestamp", timestamp);
+
+            String json = new com.google.gson.Gson().toJson(evento);
+            com.smarttraffic.api.EventSocket.broadcastMessage(json);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar evento WebSocket: " + e.getMessage());
         }
     }
 
