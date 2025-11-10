@@ -1,5 +1,8 @@
 package com.smarttraffic.agents;
 
+import com.smarttraffic.api.EventSocket;
+import com.google.gson.Gson;
+
 import com.smarttraffic.model.Coordenada;
 import com.smarttraffic.model.Coordenada.Direcao;
 import com.smarttraffic.model.Grid;
@@ -120,6 +123,8 @@ public class CarAgent extends Agent {
         POSICOES_CARROS.put(getLocalName(), coordenada);
 
         System.out.println(getLocalName() + " iniciado em " + coordenada);
+
+        enviarEventoWebSocket("spawn");
 
         addBehaviour(new TickerBehaviour(this, 3000) {
             @Override
@@ -342,6 +347,7 @@ public class CarAgent extends Agent {
         coordenada = new Coordenada(getLocalName(), x, y, nextDir);
         POSICOES_CARROS.put(getLocalName(), coordenada);
         System.out.println(getLocalName() + " moveu para " + coordenada);
+        enviarEventoWebSocket("move");
         verificarPardal();
     }
 
@@ -378,9 +384,30 @@ public class CarAgent extends Agent {
         return null;
     }
 
+    private void enviarEventoWebSocket(String tipoEvento) {
+        try {
+            Map<String, Object> evento = new HashMap<>();
+            evento.put("agent", getLocalName());
+            evento.put("event", tipoEvento);
+            evento.put("position", Map.of(
+                "x", coordenada.getX(),
+                "y", coordenada.getY()
+            ));
+            evento.put("direction", coordenada.getDirecao().toString());
+            evento.put("timestamp", java.time.LocalDateTime.now().toString());
+
+            String json = new Gson().toJson(evento);
+            EventSocket.broadcastMessage(json);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao enviar evento WebSocket: " + e.getMessage());
+        }
+    }
+
     @Override
     protected void takeDown() {
         POSICOES_CARROS.remove(getLocalName());
         System.out.println(getLocalName() + " finalizado.");
+        enviarEventoWebSocket("exit");
     }
 }
