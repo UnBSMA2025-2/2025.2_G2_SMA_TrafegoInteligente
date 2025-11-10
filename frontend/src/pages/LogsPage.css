@@ -162,3 +162,11 @@
   color: #8b949e;
 }
 
+.car-dot {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 1.1rem;
+  transform: scale(1.2);
+  user-select: none;
+}

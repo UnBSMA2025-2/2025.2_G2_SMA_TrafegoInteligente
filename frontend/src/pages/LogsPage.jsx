@@ -39,19 +39,47 @@ const LogsPage = () => {
       }
 
       if (agent?.startsWith("Car")) {
-        if (data.event === "move")
+        const { x, y } = data.position || {};
+
+        // Atualiza posição do carro ou remove ao sair
+        if (data.event === "move" || data.event === "spawn") {
+          setPosicoesCarros((prev) => ({
+            ...prev,
+            [agent]: { x, y, direction: data.direction },
+          }));
+        } else if (data.event === "exit") {
+          setPosicoesCarros((prev) => {
+            const novo = { ...prev };
+            delete novo[agent];
+            return novo;
+          });
+        }
+
+        // Retorna mensagem de log conforme o evento
+        if (data.event === "move") {
           return {
             categoria: "carro",
-            texto: `🚗 ${agent} moveu-se para ${data.direction}`,
+            texto: `🚗 ${agent} moveu-se para ${data.direction} (x=${x.toFixed(1)}, y=${y.toFixed(1)})`,
             cor: "#79c0ff",
           };
+        }
+
         if (data.event === "exit") {
           atualizarResumo("carro", "exit");
-          return { categoria: "carro", texto: `🚗 ${agent} saiu da rua`, cor: "#79c0ff" };
+          return {
+            categoria: "carro",
+            texto: `🚗 ${agent} saiu da simulação`,
+            cor: "#79c0ff",
+          };
         }
+
         if (data.event === "spawn") {
           atualizarResumo("carro", "spawn");
-          return { categoria: "carro", texto: `🚗 ${agent} entrou na simulação`, cor: "#79c0ff" };
+          return {
+            categoria: "carro",
+            texto: `🚗 ${agent} entrou na simulação (x=${x.toFixed(1)}, y=${y.toFixed(1)})`,
+            cor: "#79c0ff",
+          };
         }
       }
 
@@ -93,6 +121,8 @@ const LogsPage = () => {
 
   // Estado adicional para monitorar semáforos fixos
   const [estadosSemaforos, setEstadosSemaforos] = useState({});
+
+  const [posicoesCarros, setPosicoesCarros] = useState({});
 
   // WebSocket
   useEffect(() => {
@@ -194,6 +224,12 @@ const LogsPage = () => {
                 const key = `(${coordX},${coordY})`;
                 const semaforos = semaforosPos[key] || [];
 
+                // Conta quantos carros únicos estão nessa coordenada
+                const carrosNestaCelula = Object.values(posicoesCarros).filter(
+                  (car) => Math.round(car.x) === coordX && Math.round(car.y) === coordY
+                );
+                const quantidadeCarros = carrosNestaCelula.length;
+
                 return (
                   <div key={xIndex} className="cell">
                     {/* Coordenadas no canto */}
@@ -209,35 +245,47 @@ const LogsPage = () => {
 
                     {/* Caso tenha semáforos */}
                     {semaforos.length > 0 && (
-                    <div className="semaforos">
-                      {semaforos.map((id) => {
-                        // Define seta com base na direção do nome
-                        let arrow = "";
-                        if (id.endsWith("_N")) arrow = "↑";
-                        else if (id.endsWith("_S")) arrow = "↓";
-                        else if (id.endsWith("_L")) arrow = "→";
-                        else if (id.endsWith("_O")) arrow = "←";
+                      <div className="semaforos">
+                        {semaforos.map((id) => {
+                          // Define seta com base na direção do nome
+                          let arrow = "";
+                          if (id.endsWith("_N")) arrow = "↑";
+                          else if (id.endsWith("_S")) arrow = "↓";
+                          else if (id.endsWith("_L")) arrow = "→";
+                          else if (id.endsWith("_O")) arrow = "←";
 
-                        return (
-                          <div
-                            key={id}
-                            className="light-dot"
-                            title={`${id} (${estadosSemaforos[id] || "..."})`}
-                            style={{
-                              backgroundColor:
-                                estadosSemaforos[id] === "VERDE"
-                                  ? "#3fb950"
-                                  : estadosSemaforos[id] === "VERMELHO"
-                                  ? "#f85149"
-                                  : "#6e7681",
-                            }}
-                          >
-                            {arrow}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                          return (
+                            <div
+                              key={id}
+                              className="light-dot"
+                              title={`${id} (${estadosSemaforos[id] || "..."})`}
+                              style={{
+                                backgroundColor:
+                                  estadosSemaforos[id] === "VERDE"
+                                    ? "#3fb950"
+                                    : estadosSemaforos[id] === "VERMELHO"
+                                    ? "#f85149"
+                                    : "#6e7681",
+                              }}
+                            >
+                              {arrow}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Carros presentes nesta célula */}
+                    {quantidadeCarros > 0 && (
+                      <div
+                        className="car-dot"
+                        title={`Carros nesta célula: ${carrosNestaCelula
+                          .map((c) => `${c.x.toFixed(1)},${c.y.toFixed(1)} [${c.direction}]`)
+                          .join(" | ")}`}
+                      >
+                        🚗<span className="car-count">{quantidadeCarros}</span>
+                      </div>
+                    )}
 
                     {/* Ruas com setas */}
                     {!cell.startsWith("SPAWN") &&
@@ -253,7 +301,7 @@ const LogsPage = () => {
         </div>
 
         <p className="map-legend">
-          🟢 Entradas 🔴 Saídas 🚦 Semáforos dinâmicos ↔ Ruas com sentido
+          🟢 Entradas 🔴 Saídas 🚦 Semáforos dinâmicos 🚗 Carros ↔ Ruas com sentido
         </p>
       </section>
     </div>
