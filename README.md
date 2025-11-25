@@ -45,7 +45,9 @@ listspawn para listar pontos de spawn
 exit para sair da aplicação
 
 ## Vídeo
-[Link para o vídeo](https://youtu.be/gjUhDCBPQ7I)
+[Link para o vídeo da primeira apresentação](https://youtu.be/gjUhDCBPQ7I)
+
+[Link para o vídeo da apresentação da entrega final](https://youtu.be/s_yq0oYNCGs)
 
 ## Participações
 Apresente, brevemente, como cada membro do grupo contribuiu para o projeto.
